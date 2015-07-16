@@ -1,0 +1,6 @@
+ExpensiveItem			80
+VeryExpensiveItem		100
+Apples					5
+Oranges					7
+MediumItem				42
+SomethingElse			94
