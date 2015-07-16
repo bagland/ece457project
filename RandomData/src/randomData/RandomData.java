@@ -16,7 +16,7 @@ import java.util.Random;
 public class RandomData
 {
 	static final int numStores = 100;
-	static final int numLocations = 20;
+	static final int numLocations = 10;
 	
 	static final String OUTPUT_DISTANCE_FILE_NAME = "outputDistanceLarge.txt";
 	static final String OUTPUT_INVENTORY_FILE_NAME = "outputInventoryLarge.txt";
@@ -98,12 +98,12 @@ public class RandomData
 				builder.setLength(0);
 				builder.append(store);
 				//builder.append("\t\t\t");
-				builder.append(" ");
+				//builder.append(" ");
 				for (int col = 0; col < totalLocations; col++)
 				{
-					
-					builder.append(distances[row][col]);
 					builder.append(" ");
+					builder.append(distances[row][col]);
+					//builder.append(" ");
 				}
 				
 				writer.println(builder.toString());
@@ -115,12 +115,13 @@ public class RandomData
 			{
 				builder.setLength(0);
 				builder.append(location);
-				builder.append(" ");
+				//builder.append(" ");
 				//builder.append("\t\t\t");
 				for (int col = 0; col < totalLocations; col++)
 				{
-					builder.append(distances[row][col]);
 					builder.append(" ");
+					builder.append(distances[row][col]);
+					
 				}
 				
 				writer.println(builder.toString());
@@ -147,17 +148,18 @@ public class RandomData
 				
 				builder.append(store);
 				//builder.append("\t\t\t");
-				builder.append(" ");
+				
 				///whatever... get items
 				//Break when too few store value ||
 				while (true)
 					
 				{
 					
-					
+				
 					RandomItem item = items.get(rand.nextInt(items.size()));
 					if (storeItems.contains(item.name))
 						continue;
+					builder.append(" ");
 					//int cost = rand.nextInt(maxItemValue - minItemValue) + minItemValue;
 					builder.append(item.toString());
 					storeItems.add(item.name);

@@ -1,50 +1,30 @@
-Store_0 VeryExpensiveItem 1066 
-Store_1 Oranges 62 Wings 224 
-Store_2 ExpensiveItem 922 Utensils 118 Beef 440 
-Store_3 VeryExpensiveItem 862 Chicken 312 
-Store_4 Pork 305 Oranges 60 Apples 56 Chicken 291 
-Store_5 ExpensiveItem 726 
-Store_6 Wings 214 Stationery 144 Grapes 19 ExpensiveItem 738 
-Store_7 Chicken 255 Oranges 83 
-Store_8 Duck 513 Apples 43 Chicken 314 
-Store_9 Stationery 124 
-Store_10 Beef 401 
-Store_11 Oranges 57 Pork 377 Beef 348 ExpensiveItem 906 
-Store_12 Oranges 74 Pork 396 VeryExpensiveItem 1102 
-Store_13 MediumItem 425 Apples 50 Pork 294 
-Store_14 Wings 257 Oranges 70 Utensils 91 
-Store_15 ExpensiveItem 702 Stationery 167 Wings 217 
-Store_16 VeryExpensiveItem 903 Utensils 117 
-Store_17 Wings 228 
-Store_18 SomethingElse 1072 
-Store_19 Stationery 172 
-Store_20 Apples 50 Wings 209 Duck 450 SomethingElse 784 
-Store_21 Beef 384 MediumItem 355 Pork 352 
-Store_22 Utensils 90 
-Store_23 Pork 356 Chicken 327 
-Store_24 VeryExpensiveItem 883 
-Store_25 VeryExpensiveItem 876 ExpensiveItem 778 
-Store_26 Duck 462 
-Store_27 MediumItem 413 Apples 41 Stationery 128 
-Store_28 VeryExpensiveItem 879 Grapes 22 
-Store_29 MediumItem 421 VeryExpensiveItem 909 
-Store_30 Pork 294 
-Store_31 Utensils 92 Chicken 273 Beef 365 
-Store_32 Pork 335 
-Store_33 Apples 53 Beef 389 SomethingElse 886 
-Store_34 Wings 276 Pork 341 Beef 328 VeryExpensiveItem 995 
-Store_35 Pork 376 
-Store_36 Oranges 59 Pork 356 Wings 290 Beef 434 
-Store_37 Beef 442 Utensils 119 
-Store_38 Beef 353 Grapes 22 
-Store_39 MediumItem 390 Oranges 74 Beef 354 Chicken 350 
-Store_40 Pork 362 Grapes 23 SomethingElse 793 
-Store_41 Pork 281 Duck 410 Chicken 303 
-Store_42 Stationery 174 Beef 469 MediumItem 436 Chicken 251 
-Store_43 Beef 391 VeryExpensiveItem 939 
-Store_44 SomethingElse 800 Stationery 162 
-Store_45 VeryExpensiveItem 940 Grapes 20 
-Store_46 Oranges 68 Grapes 17 Pork 396 VeryExpensiveItem 1104 
-Store_47 SomethingElse 1104 VeryExpensiveItem 828 
-Store_48 VeryExpensiveItem 823 Pork 298 
-Store_49 VeryExpensiveItem 1169 ExpensiveItem 938 
+Store_0 Duck 516 VeryExpensiveItem 917
+Store_1 Oranges 64
+Store_2 MediumItem 432 Chicken 263 Stationery 136 Duck 528
+Store_3 Apples 50 Grapes 21 Oranges 68 ExpensiveItem 814 Utensils 108
+Store_4 Stationery 155 Apples 45 Grapes 17 Utensils 118 Pork 377 VeryExpensiveItem 882
+Store_5 Pork 349 Duck 400 Stationery 137 Oranges 78
+Store_6 ExpensiveItem 898 Chicken 246
+Store_7 Wings 225 Duck 547
+Store_8 VeryExpensiveItem 1081 Utensils 98
+Store_9 VeryExpensiveItem 1070 MediumItem 371
+Store_10 Grapes 19 ExpensiveItem 760 Beef 429
+Store_11 Duck 518 Apples 49 Stationery 168 SomethingElse 1107
+Store_12 Chicken 251 Grapes 23 Stationery 147 MediumItem 426 ExpensiveItem 883
+Store_13 Beef 351 Pork 418 Wings 297 Oranges 71
+Store_14 Chicken 340
+Store_15 ExpensiveItem 902 Utensils 85 Duck 509
+Store_16 ExpensiveItem 738 Apples 47 Stationery 129 Grapes 18
+Store_17 Grapes 21 Chicken 257 SomethingElse 790
+Store_18 MediumItem 484 Duck 437 Utensils 114
+Store_19 Apples 47 Wings 207
+Store_20 SomethingElse 969
+Store_21 ExpensiveItem 925
+Store_22 Oranges 76 Chicken 304
+Store_23 Oranges 56
+Store_24 MediumItem 376 SomethingElse 1123
+Store_25 Utensils 87 Wings 210 ExpensiveItem 662
+Store_26 Wings 286 Grapes 17 MediumItem 394
+Store_27 MediumItem 369 Apples 53 Utensils 89 Wings 270 Stationery 127
+Store_28 Beef 428
+Store_29 VeryExpensiveItem 1023
