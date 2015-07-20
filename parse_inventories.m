@@ -1,6 +1,7 @@
-function [ store_inventories ] = parse_inventories( filename )
-%INVENTORY_DATA Summary of this function goes here
-%   Detailed explanation goes here
+function storePrice = parse_inventories( filename )
+%   This function returns a map
+%   Keys are product names
+%   Values are maps with key-value = {city:price}
     fileId = fopen(filename, 'r');
     input_data = textscan(fileId, '%s', 'Delimiter', '\n');
     store_num = length(input_data{1});
@@ -10,9 +11,7 @@ function [ store_inventories ] = parse_inventories( filename )
         line = strsplit(input_data{1}{iteration});
         store_inventories{iteration} = line;
         iteration = iteration + 1;
-%         disp(line);
     end
-%     containers.Map(keySet,valueSet)
     storePrice = containers.Map;
     for i = 1:length(store_inventories)
        line = store_inventories{i};
@@ -31,8 +30,11 @@ function [ store_inventories ] = parse_inventories( filename )
            end
        end
     end
-    map_keys = values(storePrice);
-    apple_dict = map_keys(1);
-    apple_dict{1}('Drugs')
-end
 
+%     This is an example of how to use a resulted map    
+%     storePrice_keys = keys(storePrice);
+%     for i=1:numel(storePrice_keys)
+%         product_name = storePrice_keys(i);
+%         disp(storePrice(product_name{1}));
+%     end
+end
