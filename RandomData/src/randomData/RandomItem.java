@@ -25,6 +25,7 @@ public class RandomItem
 
 		int randomValue = cost * randomMultiplierPercent / 100;
 		int costText = cost + rand.nextInt(randomValue * 2) - randomValue;
+		//int costText = cost;
 		return name + " " +  costText;
 	}
 }

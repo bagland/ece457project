@@ -20,9 +20,13 @@ public class RandomData
 	
 	static final String OUTPUT_DISTANCE_FILE_NAME = "outputDistanceLarge.txt";
 	static final String OUTPUT_INVENTORY_FILE_NAME = "outputInventoryLarge.txt";
-	static final String INPUT_STORE_NAME = "stores.txt";
-	static final String INPUT_LOCATION_NAME = "locations.txt";
 	static final String INPUT_ITEMS_NAME = "items.txt";
+	static final int seed = 0;
+	
+	
+	//static final String INPUT_STORE_NAME = "stores.txt";
+	//static final String INPUT_LOCATION_NAME = "locations.txt";
+	
 	final static Charset ENCODING = StandardCharsets.UTF_8;
 
 	
@@ -35,7 +39,7 @@ public class RandomData
 	static final int maxItemValue = 10000;
 	static final int minItemValue = 1;
 	
-	static final int seed = 0;
+	
 	static Random rand = new Random(seed);
 	
 	static final int stopValue = 20;
