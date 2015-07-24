@@ -1,4 +1,4 @@
-function [distance, price] = evaluateSoln( route, items, stores, distanceMap, inventoryMap, storeNames )
+function [distance, price] = evaluateSoln( route, items, stores, purchaseAmountMap, distanceMap, inventoryMap, storeNames )
     
        % I think these will keep parsing those files if you just dont pass
        % them in zzz....
@@ -38,7 +38,8 @@ function [distance, price] = evaluateSoln( route, items, stores, distanceMap, in
         storeKey = stores{i};
         
         itemPrice = str2double(storeItemMap(storeKey));
-        price = price + itemPrice;
+        amountBought = purchaseAmountMap(itemCharName);
+        price = price + itemPrice * amountBought;
         i = i + 1;
     end
 

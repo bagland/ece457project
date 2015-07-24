@@ -1,14 +1,38 @@
 %User Input requirements, starting location + what they want to purchase
-currentPurchaseArray = {'Apples', 'Chicken', 'Oranges', 'Duck', 'VeryExpensiveItem'};
+currentPurchaseArray = {'Apples', 'Chicken', 'Oranges', 'Duck', 'VeryExpensiveItem', 'Stationery', 'MediumItem'};
+purchaseAmountMap = containers.Map;
+purchaseAmountMap('Apples') = 5;
+purchaseAmountMap('Chicken') = 1;
+purchaseAmountMap('Oranges') = 1;
+purchaseAmountMap('Duck') = 1;
+purchaseAmountMap('VeryExpensiveItem') = 5;
+purchaseAmountMap('Stationery') = 1;
+purchaseAmountMap('MediumItem') = 5;
 startLocation = 'Location_1';
+
+%Get files
+distanceMap = parse_distances('outputDistance.txt');
+inventoryMap = parse_inventory('outputInventory.txt');
+storeNames = store_names('outputDistance.txt');
+numItems = size(currentPurchaseArray);
 
 %Standard SA params.
 boltzman = 1;
 initialTemp =1.0; 
-maxNumRuns = 1000;
+maxNumRuns = 5000;
 alpha=0.95; % Cooling factor
 temperature = initialTemp;
 runNum = 0;
+
+%Other params.
+numTimesSameValue = 0;
+maxNumTimesSameValue = 20;
+exitNumTimesSameValue = 100;
+reheatValue = 1.1;
+
+currTempIter = 0;
+numIterPerTempDecrease = 10;
+numIterPertempDecreaseIncrement = 10;
 
 swapProbability = 0.5;
 randomStoreProbability = 1 - swapProbability;
@@ -16,11 +40,6 @@ randomStoreProbability = 1 - swapProbability;
 %Objective Fcn
 weightDist = 0.5;
 weightPrice = 1 - weightDist;
-
-distanceMap = parse_distances('outputDistance.txt');
-inventoryMap = parse_inventory('outputInventory.txt');
-storeNames = store_names('outputDistance.txt');
-numItems = size(currentPurchaseArray);
 
 %Generating an initial soln------------
 storeList = cell(numItems);
@@ -47,7 +66,7 @@ end
 midRoute{count} = startLocation;
 
 %get initial soln cost
-[distCost, priceCost] = evaluateSoln(midRoute,currentPurchaseArray,currentStoreList, distanceMap, inventoryMap, storeNames);
+[distCost, priceCost] = evaluateSoln(midRoute,currentPurchaseArray,currentStoreList, purchaseAmountMap, distanceMap, inventoryMap, storeNames);
 currentSolnCost = weightDist * distCost + weightPrice * priceCost;
 
 
@@ -106,9 +125,28 @@ while (runNum < maxNumRuns)
     end
    
     %Eval soln
-    [distCost, priceCost] = evaluateSoln(midRoute,currentPurchaseArray,currentStoreList, distanceMap, inventoryMap, storeNames);
+    [distCost, priceCost] = evaluateSoln(midRoute,currentPurchaseArray,currentStoreList, purchaseAmountMap, distanceMap, inventoryMap, storeNames);
     currentSolnCost = weightDist * distCost + weightPrice * priceCost;
 
+    deltaCost = currentSolnCost - iterSolnCost;
+    if (deltaCost == 0)
+        numTimesSameValue = numTimesSameValue + 1;
+        if (numTimesSameValue >= maxNumTimesSameValue)
+            %converged and dont seem to be able to get out
+            if (numTimesSameValue >= exitNumTimesSameValue)
+                disp('Exit on too many same values');
+          
+                break;
+            end
+            %Still relatively early in search, reheat
+            if runNum < maxNumRuns*0.5 && floor(maxNumTimesSameValue/2) ==  numTimesSameValue 
+                temperature = temperature * reheatValue;
+                disp('reheat');
+            end
+        end
+    else
+        numTimesSameValue = 0; 
+    end
     %Best soln we've seen so far
     if (currentSolnCost < bestSolnCost)
         bestSolnCost = currentSolnCost;
@@ -124,8 +162,7 @@ while (runNum < maxNumRuns)
         iterStoreList = currentStoreList;
     else
         %SA check probability of acceptance.
-        difference = currentSolnCost - iterSolnCost;
-        if exp(-difference/(boltzman*temperature))>rand()
+        if exp(-deltaCost/(boltzman*temperature))>rand()
            %Accept when worse 
            iterSolnCost = currentSolnCost;
            itercurrentPurchaseArray = currentPurchaseArray;
@@ -135,9 +172,21 @@ while (runNum < maxNumRuns)
     end
     %cooldown
     %Can change this too.
-    temperature = temperature * alpha;
+    currTempIter = currTempIter + 1;
+    if (currTempIter >= numIterPerTempDecrease)
+        numIterPerTempDecrease = numIterPerTempDecrease + numIterPertempDecreaseIncrement; 
+        currTempIter = 0;
+        temperature = temperature * alpha;
+    end
+        
     runNum = runNum + 1;
+    
+
+    %scatter(runNum,iterSolnCost);
+    %hold on;
+    
 end
+
 disp('Best soln');
 disp(bestcurrentPurchaseArray);
 disp (bestStoreList);
