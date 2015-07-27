@@ -1,4 +1,5 @@
 %User Input requirements, starting location + what they want to purchase
+% You need more than 2 items to swap.
 currentPurchaseArray = {'Apples', 'Chicken', 'Oranges', 'Duck', 'VeryExpensiveItem', 'Stationery', 'MediumItem'};
 purchaseAmountMap = containers.Map;
 purchaseAmountMap('Apples') = 5;
@@ -17,25 +18,28 @@ storeNames = store_names('outputDistance.txt');
 numItems = size(currentPurchaseArray);
 
 %Standard SA params.
-boltzman = 1;
+boltzman = 160;
 initialTemp =1.0; 
-maxNumRuns = 5000;
-alpha=0.95; % Cooling factor
+maxNumRuns = 20000;
+alpha=0.95; % Cooling factor used is geometric, T = T * alpha
 temperature = initialTemp;
-runNum = 0;
 
 %Other params.
-numTimesSameValue = 0;
-maxNumTimesSameValue = 20;
-exitNumTimesSameValue = 100;
-reheatValue = 1.1;
+    %Stagnation/stuck in local minimum
+noIterImprovement = 0;
+numNoIterImprovementExit = 3000; %BREAK EARLY, WE ARE REALLY STUCK TRY AGAIN
+noIterImprovementReheat = 500;
+reheatValue = 1.05;
+reheatRunThreshold = maxNumRuns/2; %STOP REHEATING IF PAST THIS POINT!
 
+    %Few iterations on initial temp, more on lower and lower temps
 currTempIter = 0;
-numIterPerTempDecrease = 10;
-numIterPertempDecreaseIncrement = 10;
+numIterPerTempDecrease = 20;
+numIterPertempDecreaseIncrement = 20;
 
-swapProbability = 0.5;
-randomStoreProbability = 1 - swapProbability;
+    %Neighbourhood operator probabilities
+swapProbability = 0.85;
+randomStoreProbability = 0.85;
 
 %Objective Fcn
 weightDist = 0.5;
@@ -81,10 +85,21 @@ iterSolnCost = currentSolnCost;
 itercurrentPurchaseArray = currentPurchaseArray;
 iterStoreList = currentStoreList;
 
-while (runNum < maxNumRuns)
+%Graphing
+solnXAxis = [0];
+solnYAxis = [iterSolnCost];
+thePlot = plot(solnXAxis, solnYAxis)
+set(thePlot,'XDataSource', 'solnXAxis')
+set(thePlot,'YDataSource', 'solnYAxis')
+%linkdata on
+
+runNum = 0;
+totalLoopTimeTaken = 0;
+while (runNum < maxNumRuns || noIterImprovement >= numNoIterImprovementExit)
     
+    loopStartTime = cputime;
     %swap
-    if (rand() < swapProbability)
+    if (rand() < swapProbability && numItems > 1)
         %disp('swap');
         firstSlot = randi(numItems);
         secondSlot = randi(numItems);
@@ -113,7 +128,8 @@ while (runNum < maxNumRuns)
         temp = currentStoreList{firstSlot};
         currentStoreList{firstSlot} = currentStoreList{secondSlot};
         currentStoreList{secondSlot} = temp;
-    else
+    end
+    if (rand() < randomStoreProbability)
         %Random Store
         %disp('randomstore.');
         whatItem = randi(numItems); %Pick which item select a different store.
@@ -129,24 +145,7 @@ while (runNum < maxNumRuns)
     currentSolnCost = weightDist * distCost + weightPrice * priceCost;
 
     deltaCost = currentSolnCost - iterSolnCost;
-    if (deltaCost == 0)
-        numTimesSameValue = numTimesSameValue + 1;
-        if (numTimesSameValue >= maxNumTimesSameValue)
-            %converged and dont seem to be able to get out
-            if (numTimesSameValue >= exitNumTimesSameValue)
-                disp('Exit on too many same values');
-          
-                break;
-            end
-            %Still relatively early in search, reheat
-            if runNum < maxNumRuns*0.5 && floor(maxNumTimesSameValue/2) ==  numTimesSameValue 
-                temperature = temperature * reheatValue;
-                disp('reheat');
-            end
-        end
-    else
-        numTimesSameValue = 0; 
-    end
+    
     %Best soln we've seen so far
     if (currentSolnCost < bestSolnCost)
         bestSolnCost = currentSolnCost;
@@ -155,20 +154,28 @@ while (runNum < maxNumRuns)
         iterSolnCost = currentSolnCost;
         itercurrentPurchaseArray = currentPurchaseArray;
         iterStoreList = currentStoreList;
+        noIterImprovement = 0;
     %Better than the current soln we have
     elseif (currentSolnCost < iterSolnCost)
         iterSolnCost = currentSolnCost;
         itercurrentPurchaseArray = currentPurchaseArray;
         iterStoreList = currentStoreList;
+        noIterImprovement = 0;
     else
         %SA check probability of acceptance.
-        if exp(-deltaCost/(boltzman*temperature))>rand()
+        chance = exp(-deltaCost/(boltzman*temperature));
+        if chance>rand()
            %Accept when worse 
            iterSolnCost = currentSolnCost;
            itercurrentPurchaseArray = currentPurchaseArray;
            iterStoreList = currentStoreList;
         end
-            
+        
+        noIterImprovement = noIterImprovement + 1;
+        if (mod(noIterImprovement,noIterImprovementReheat) == 0 && runNum < reheatRunThreshold) 
+            temperature = temperature * reheatValue;
+            disp('reheat');
+        end
     end
     %cooldown
     %Can change this too.
@@ -181,13 +188,29 @@ while (runNum < maxNumRuns)
         
     runNum = runNum + 1;
     
-
-    %scatter(runNum,iterSolnCost);
-    %hold on;
+    solnXAxis = [solnXAxis runNum];
+    solnYAxis = [solnYAxis iterSolnCost];
+    
+    loopEndTime = cputime;
+    %DO NOT INCLUDE GRAPH DRAW TIME IN LOOP TIME, THAT IS POINTLESS
+    loopTimeTaken = loopEndTime - loopStartTime;
+    totalLoopTimeTaken = totalLoopTimeTaken + loopTimeTaken;
+    
+    %Graph update
+    if (mod(runNum,200) == 0)
+        refreshdata
+        drawnow
+    end
     
 end
 
-disp('Best soln');
+refreshdata
+drawnow
+%linkdata off;
+
+avgLoopTimeTaken = totalLoopTimeTaken/runNum;
+fprintf('Best soln in %d runs\n', runNum);
+fprintf('Avg loop time %d seconds, full time taken %d\n', avgLoopTimeTaken, totalLoopTimeTaken);
 disp(bestcurrentPurchaseArray);
 disp (bestStoreList);
 disp(bestSolnCost);
