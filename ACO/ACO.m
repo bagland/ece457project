@@ -146,4 +146,7 @@ end
 disp(currentPurchaseArray);
 disp(bestRoute);
 disp(bestSolnCost);
+disp(pricePheromones);
+disp(distancePheromones);
+% eventually most of unused paths are evaporated to 0
 % antsRoute
