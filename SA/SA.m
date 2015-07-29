@@ -27,7 +27,7 @@ temperature = initialTemp;
 %Other params.
     %Stagnation/stuck in local minimum
 noIterImprovement = 0;
-numNoIterImprovementExit = 3000; %BREAK EARLY, WE ARE REALLY STUCK TRY AGAIN
+numNoIterImprovementExit = 2000; %BREAK EARLY, WE ARE REALLY STUCK TRY AGAIN
 noIterImprovementReheat = 500;
 reheatValue = 1.05;
 reheatRunThreshold = maxNumRuns/2; %STOP REHEATING IF PAST THIS POINT!
@@ -99,7 +99,7 @@ while (runNum < maxNumRuns || noIterImprovement >= numNoIterImprovementExit)
     
     loopStartTime = cputime;
     %swap
-    if (rand() < swapProbability && numItems > 1)
+    if (rand() < swapProbability && numItems(2) > 1)
         %disp('swap');
         firstSlot = randi(numItems);
         secondSlot = randi(numItems);

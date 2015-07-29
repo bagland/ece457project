@@ -1,0 +1,7 @@
+function output = inRoute( input_args )
+%INROUTE Summary of this function goes here
+%   Detailed explanation goes here
+
+
+end
+

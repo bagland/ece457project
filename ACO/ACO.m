@@ -58,9 +58,12 @@ stores_visited{1} = startLocation;
 store_iteration = 2;
 % each ant's route is start location + # of products + start location
 best_ant_index = 1;
-
-% product and price picked 
+current_best_price_cost = inf;
+current_best_dist_cost = inf;
+% product and price picked
+totalLoopTimeTaken = 0;
 while currentIter < maxIters
+    loopStartTime = cputime;
 %     set initial cost to a big number
     cost = inf;
 %     products_bought{1} = 'product';
@@ -68,8 +71,12 @@ while currentIter < maxIters
     bestSolnCost = inf;
     for i = 1:numAnts
         antsRoute{i, 1} = startLocation;
+%         antsProducts{i,
         products_index = 1;
-        fprintf('Ant # = %f\n', i);
+%         fprintf('Ant # = %f\n', i);
+        itemPurchaseArray = currentPurchaseArray;
+        Perm1 = randperm(length(currentPurchaseArray));
+        itemPurchaseArray = itemPurchaseArray(Perm1);
         while products_index < numProducts + 1
             product = currentPurchaseArray(products_index);
             productName = product{1};
@@ -87,6 +94,7 @@ while currentIter < maxIters
                 [m, prevCityIndex] = ismember(stores_visited{store_iteration-1}, storeNames);
                 prev_store = stores_visited{store_iteration-1};
                 distancesFromPrevStore = distanceMap(prev_store);
+                output = inRoute( antsRoute, i, key, numProducts );
                 distance = distancesFromPrevStore(index);
                 sumDistances = sumDistances + distancePheromones(prevCityIndex, index)/str2double(distance);
             end
@@ -137,12 +145,19 @@ while currentIter < maxIters
         if currentSolnCost < bestSolnCost
             bestSolnCost = currentSolnCost;
             best_ant_index = i;
+            current_best_price_cost = priceCost;
+            current_best_dist_cost = distCost;
         end
     end
     bestRoute = getRouteForAnt( antsRoute, best_ant_index, numProducts);
-    [pricePheromones, distancePheromones] = updatePheromones( route, pricePheromones, distancePheromones, storeNames, numProducts, evaporation_rate );
+    [pricePheromones, distancePheromones] = updatePheromones( route, pricePheromones, distancePheromones, storeNames, numProducts, evaporation_rate, 1, 1, current_best_dist_cost, current_best_price_cost );
     currentIter = currentIter + 1;
+    loopEndTime = cputime;
+    loopTimeTaken = loopEndTime - loopStartTime;
+    totalLoopTimeTaken = totalLoopTimeTaken + loopTimeTaken;
 end
+
+fprintf('It took %f seconds\n', totalLoopTimeTaken);
 disp(currentPurchaseArray);
 disp(bestRoute);
 disp(bestSolnCost);
