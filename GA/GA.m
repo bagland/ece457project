@@ -3,9 +3,9 @@ function [solution] = GA()
 %large value to ensure nonnegative fitness
 V = 1000; %todo: find actual value
 %pop size
-PopSize = 10;
+PopSize = 20;
 %number of generations
-NumGen = 50;
+NumGen = 100;
 
 %make up input, should put in file later
 numItems = 7;
@@ -85,13 +85,13 @@ for i= 1:PopSize
     %disp(midRoute);
     dataMap('storeList') = currentStoreList;
     %disp(currentStoreList);
-    dataMap('amountMap') = purchaseAmountMap;
+    %dataMap('amountMap') = purchaseAmountMap;
     dataMap('bestSolnCost') = currentSolnCost;
     %disp(currentSolnCost);
     dataMap('bestPurchaseArray') = itemPurchaseArray;
     %disp(itemPurchaseArray);
-    dataMap('bestStoreList') = currentStoreList;
-    dataMap('bestSolnCost') = currentSolnCost;
+    %dataMap('bestStoreList') = currentStoreList;
+    %dataMap('bestSolnCost') = currentSolnCost;
     %dataMap('bestPurchaseArray') = itemPurchaseArray;
     %dataMap('bestStoreList') = currentStoreList;
     
@@ -116,21 +116,23 @@ for i = 1:NumGen
             worstSolution = GAPop{j};
         end
     end
-    %disp(popFitness);
+
     average = median(popFitness);
     bestFit = min(popFitness);
     %disp(average);
     stats(i,:) = [average, bestCost];
     %add best solution to next generation
     
-    nextGen{PopSize} = bestSolution;
-    %disp(nextGen);
-    disp(i);
-    disp(bestCost);
+    newSoln = copy(bestSolution);
+    
+%    disp(i);
+%    disp(bestCost);
+    
     %remove worst solution from pool
     if worstCost(2) ~= PopSize
         GAPop{worstCost(2)} = GAPop{PopSize};
     end %ignore last element in mutation and crossover
+    GAPop{PopSize} = newSoln;
 %-------------------------------------------
     randomIndex = randperm(PopSize-1);
     index = 1;
@@ -192,11 +194,9 @@ for i = 1:NumGen
         [distCost, priceCost] = evaluateSoln(SecondRoute,SecondArray,SecondStores, purchaseAmountMap, distanceMap, inventoryMap, storeNames);
         Second('bestSolnCost') = weightDist * distCost + weightPrice * priceCost;
         %disp(Second('bestSolnCost'));
-        if (index+1<PopSize)
-        nextGen{index} = First;
-        nextGen{index+1} = Second;
+        %disp(index)
   %disp(nextGen{PopSize}('bestSolnCost'));
-        end
+ 
         index = index + 2;
     end
     %--------------
@@ -256,47 +256,50 @@ for i = 1:NumGen
         %disp(nextGen{PopSize}('bestSolnCost'));
         First('bestSolnCost') = weightDist * distCost + weightPrice * priceCost;
         
-        %disp('2');
-        %disp(nextGen{PopSize}('bestSolnCost'));
-        %disp(First('bestSolnCost'));
-        %disp('first time in mutation');
         %disp(index);
-        %disp(PopSize);
-        nextGen{index} = First;
-        %disp(nextGen{PopSize}('bestSolnCost'));
-        %disp(nextGen{PopSize}('route'));
-        index = index + 1;
     end
     %-----------------------------
-        %mutate half of the population
-  %how do i represent binary - right now it is a list of stores
-  %swapping stores? 
-  %should I have 2 lists, one with the order of the stores and one with the
-  %stores where it shows where each item is bought
-  %then I can swap around the second one
-  %and mutate the first one??? - I would need to remove 
-  %apply crossover
-  %mutate offspring
-  %get next gen
-  disp(nextGen{PopSize}('bestSolnCost'));
-  GAPop = nextGen;
+    for j=1:PopSize
+        popFitness(j) = GAPop{j}('bestSolnCost');
+        if popFitness(j)<bestCost
+            bestCost = popFitness(j);
+            bestSolution = j;
+        elseif popFitness(j)>worstCost(1)
+            worstCost = [popFitness(j) j];
+            worstSolution = GAPop{j};
+        end
+    end
+    %disp(nextGen{PopSize}('bestSolnCost'));
+    %GAPop = nextGen;
 end
     %can swap out stores to get lower cost or 
     %swap out store orders to get lower distance
     
   
 for j=1:PopSize
+    bestCost = 100000;
+    worstCost = 0;
    popFitness(j) = GAPop{j}('bestSolnCost');
         if popFitness(j)<bestCost
             bestCost = popFitness(j);
-            bestSolution = GAPop{j};
+            bestSolution2 = GAPop{j};
         elseif popFitness(j)>worstCost(1)
             worstCost = [popFitness(j) j];
-            worstSolution = GAPop{j};
+            worstSolution2 = GAPop{j};
         end
 end
 
 plot(stats);
   %return best solution
-solution = [bestSolution('route'), bestSolution('bestSolnCost')];
+solution = [bestSolution2('route'), bestSolution2('bestSolnCost')];
+
+        function new = copy(this)
+            % Instantiate new object of the same class.
+            new = feval(class(this));
+ 
+            % Copy all non-hidden properties.
+           new('bestSolnCost') = this('bestSolnCost');
+new('route') = this('route');
+new('storeList') = this('storeList');
+new('bestPurchaseArray') = this('bestPurchaseArray');
 
