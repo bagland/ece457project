@@ -19,7 +19,7 @@ numItems = size(currentPurchaseArray);
 
 %Standard SA params.
 boltzman = 1;
-initialTemp = 200; 
+initialTemp = 400; 
 maxNumRuns = 20000;
 alpha=0.85; % Cooling factor used is geometric, T = T * alpha
 temperature = initialTemp;
@@ -27,7 +27,7 @@ temperature = initialTemp;
 %Other params.
     %Stagnation/stuck in local minimum
 noIterImprovement = 0;
-numNoIterImprovementExit = 3000; %BREAK EARLY, WE ARE REALLY STUCK TRY AGAIN
+numNoIterImprovementExit = 2000; %BREAK EARLY, WE ARE REALLY STUCK TRY AGAIN
 noIterImprovementReheat = 400;
 numNoIterImprovementSwap = 1000;
 numNoIterImprovementRandomStore = 750;
@@ -45,7 +45,7 @@ swapProbability = 0.85;
 numSwapsToMake = 5;
 randomStoreProbability = 0.85;
 numRandomStoreToMake = 5;
-reduceNeighbourhoodThreshold = 100; % If we have a big delta F from the best soln, we should decrease neighbourhood to intensify
+reduceNeighbourhoodThreshold 
 
 %Objective Fcn
 weightDist = 0.5;
@@ -104,7 +104,7 @@ set(thePlot,'YDataSource', 'solnYAxis')
 
 runNum = 0;
 totalLoopTimeTaken = 0;
-while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
+while (runNum < maxNumRuns || noIterImprovement >= numNoIterImprovementExit)
     
     tic
     %swap
@@ -178,10 +178,6 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
         itercurrentPurchaseArray = currentPurchaseArray;
         iterStoreList = currentStoreList;
         noIterImprovement = 0;
-        if deltaCost > reduceNeighbourhoodThreshold
-            numSwapsToMake = max(1,numSwapsToMake - 1);
-            numRandomStoreToMake = max(1,numRandomStoreToMake - 1);
-        end
     else
         %SA check probability of acceptance.
         chance = exp(-deltaCost/(boltzman*temperature));
