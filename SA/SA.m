@@ -28,25 +28,25 @@ numItems = size(currentPurchaseArray);
 %Standard SA params.
 boltzman = 1;
 initialTemp = 200; 
-maxNumRuns = 20000;
-alpha=0.85; % Cooling factor used is geometric, T = T * alpha
+maxNumRuns = 50000;
+alpha=0.9; % Cooling factor used is geometric, T = T * alpha
 temperature = initialTemp;
 
 %Other params.
     %Stagnation/stuck in local minimum
 noIterImprovement = 0;
 numNoIterImprovementExit = 10000; %BREAK EARLY, WE ARE REALLY STUCK TRY AGAIN
-noIterImprovementReheat = 400;
-numNoIterImprovementSwap = 1000;
-numNoIterImprovementRandomStore = 750;
+noIterImprovementReheat = 800;
+numNoIterImprovementSwap = 1500;
+numNoIterImprovementRandomStore = 500;
 
-reheatValue = 1.05;
+reheatValue = 1.11;
 reheatRunThreshold = maxNumRuns/2; %STOP REHEATING IF PAST THIS POINT!
 
     %Few iterations on initial temp, more on lower and lower temps
 currTempIter = 0;
 numIterPerTempDecrease = 50;
-numIterPertempDecreaseIncrement = 100;
+numIterPertempDecreaseIncrement = 50;
 
     %Neighbourhood operator probabilities
 numSuccessiveImprovement = 0;
@@ -54,8 +54,7 @@ swapProbability = 0.85;
 numSwapsToMake = 5;
 randomStoreProbability = 0.85;
 numRandomStoreToMake = 5;
-reduceNeighbourhoodThreshold = 100; % If we have a big delta F from the best soln, we should decrease neighbourhood to intensify
-numSuccessiveThreshold = 3;
+reduceNeighbourhoodThreshold = 50; % If we have a big delta F from the best soln, we should decrease neighbourhood to intensify
 
 %Objective Fcn
 weightDist = 0.5;
@@ -181,28 +180,25 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
         iterStoreList = currentStoreList;
         noIterImprovement = 0;
         
-        numSuccessiveImprovement = numSuccessiveImprovement + 1;
-        if numSuccessiveImprovement >= numSuccessiveThreshold
+        if deltaCost > reduceNeighbourhoodThreshold
             numSwapsToMake = max(1,numSwapsToMake - 1);
             numRandomStoreToMake = max(1,numRandomStoreToMake - 1);
-            numSuccessiveImprovement = 0;
             disp('less swaps');
         end
+        
     %Better than the current soln we have
     elseif (currentSolnCost < iterSolnCost)
         iterSolnCost = currentSolnCost;
         itercurrentPurchaseArray = currentPurchaseArray;
         iterStoreList = currentStoreList;
         noIterImprovement = 0;
-        numSuccessiveImprovement = numSuccessiveImprovement + 1;
-        if numSuccessiveImprovement >= numSuccessiveThreshold
+        if deltaCost > reduceNeighbourhoodThreshold
             numSwapsToMake = max(1,numSwapsToMake - 1);
             numRandomStoreToMake = max(1,numRandomStoreToMake - 1);
-            numSuccessiveImprovement = 0;
             disp('less swaps');
         end
+        
     else
-        numSuccessiveImprovement = 0;
         %SA check probability of acceptance.
         chance = exp(-deltaCost/(boltzman*temperature));
         %disp (runNum);
@@ -219,6 +215,9 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
         noIterImprovement = noIterImprovement + 1;
         if (mod(noIterImprovement,noIterImprovementReheat) == 0 && runNum < reheatRunThreshold) 
             temperature = temperature * reheatValue;
+            
+            %Revert the temp.
+            numIterPerTempDecrease = numIterPerTempDecrease - numIterPertempDecreaseIncrement;
             disp('reheat');
         end
         
