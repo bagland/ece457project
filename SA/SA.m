@@ -1,5 +1,6 @@
 %User Input requirements, starting location + what they want to purchase
 % You need more than 2 items to swap.
+
 currentPurchaseArray = {'Apples', 'Chicken', 'Oranges', 'Duck', 'VeryExpensiveItem', 'Stationery', 'MediumItem'};
 purchaseAmountMap = containers.Map;
 purchaseAmountMap('Apples') = 5;
@@ -9,6 +10,13 @@ purchaseAmountMap('Duck') = 1;
 purchaseAmountMap('VeryExpensiveItem') = 5;
 purchaseAmountMap('Stationery') = 1;
 purchaseAmountMap('MediumItem') = 5;
+
+
+%currentPurchaseArray = {'Chicken', 'Duck'};
+%purchaseAmountMap = containers.Map;
+%purchaseAmountMap('Duck') = 5;
+%purchaseAmountMap('Chicken') = 2;
+
 startLocation = 'Location_1';
 
 %Get files
@@ -27,7 +35,7 @@ temperature = initialTemp;
 %Other params.
     %Stagnation/stuck in local minimum
 noIterImprovement = 0;
-numNoIterImprovementExit = 3000; %BREAK EARLY, WE ARE REALLY STUCK TRY AGAIN
+numNoIterImprovementExit = 10000; %BREAK EARLY, WE ARE REALLY STUCK TRY AGAIN
 noIterImprovementReheat = 400;
 numNoIterImprovementSwap = 1000;
 numNoIterImprovementRandomStore = 750;
@@ -41,11 +49,13 @@ numIterPerTempDecrease = 50;
 numIterPertempDecreaseIncrement = 100;
 
     %Neighbourhood operator probabilities
+numSuccessiveImprovement = 0;
 swapProbability = 0.85;
 numSwapsToMake = 5;
 randomStoreProbability = 0.85;
 numRandomStoreToMake = 5;
 reduceNeighbourhoodThreshold = 100; % If we have a big delta F from the best soln, we should decrease neighbourhood to intensify
+numSuccessiveThreshold = 3;
 
 %Objective Fcn
 weightDist = 0.5;
@@ -102,6 +112,7 @@ set(thePlot,'XDataSource', 'solnXAxis')
 set(thePlot,'YDataSource', 'solnYAxis')
 %linkdata on
 
+
 runNum = 0;
 totalLoopTimeTaken = 0;
 while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
@@ -150,6 +161,7 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
             storeKeys = keys(storeItemMap);
             whatStore = randi(size(storeKeys)); % Pick a random store in that list
             currentStoreList{whatItem} = storeKeys{whatStore};
+            midRoute{whatItem+1} = storeKeys{whatStore};
         end
     end
    
@@ -168,9 +180,13 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
         itercurrentPurchaseArray = currentPurchaseArray;
         iterStoreList = currentStoreList;
         noIterImprovement = 0;
-        if deltaCost > reduceNeighbourhoodThreshold
+        
+        numSuccessiveImprovement = numSuccessiveImprovement + 1;
+        if numSuccessiveImprovement >= numSuccessiveThreshold
             numSwapsToMake = max(1,numSwapsToMake - 1);
             numRandomStoreToMake = max(1,numRandomStoreToMake - 1);
+            numSuccessiveImprovement = 0;
+            disp('less swaps');
         end
     %Better than the current soln we have
     elseif (currentSolnCost < iterSolnCost)
@@ -178,17 +194,21 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
         itercurrentPurchaseArray = currentPurchaseArray;
         iterStoreList = currentStoreList;
         noIterImprovement = 0;
-        if deltaCost > reduceNeighbourhoodThreshold
+        numSuccessiveImprovement = numSuccessiveImprovement + 1;
+        if numSuccessiveImprovement >= numSuccessiveThreshold
             numSwapsToMake = max(1,numSwapsToMake - 1);
             numRandomStoreToMake = max(1,numRandomStoreToMake - 1);
+            numSuccessiveImprovement = 0;
+            disp('less swaps');
         end
     else
+        numSuccessiveImprovement = 0;
         %SA check probability of acceptance.
         chance = exp(-deltaCost/(boltzman*temperature));
-        disp (runNum);
-        disp(chance);
-        disp(deltaCost);
-        disp('\n');
+        %disp (runNum);
+        %disp(chance);
+        %disp(deltaCost);
+        %disp('\n');
         if chance>rand()
            %Accept when worse 
            iterSolnCost = currentSolnCost;
@@ -204,10 +224,12 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
         
         if (mod(noIterImprovement,numNoIterImprovementSwap) == 0) 
             disp('more swap');
+            numSwapsToMake = numSwapsToMake + 1;
         end
         
         if (mod(noIterImprovement,numNoIterImprovementRandomStore) == 0) 
-            disp('more randomstore');
+            disp('more random store');
+            numRandomStoreToMake = numRandomStoreToMake + 1;
         end
     end
     %cooldown
@@ -244,5 +266,5 @@ avgLoopTimeTaken = totalLoopTimeTaken/runNum;
 fprintf('Best soln in %d runs\n', runNum);
 fprintf('Avg loop time %d seconds, full time taken %d\n', avgLoopTimeTaken, totalLoopTimeTaken);
 disp(bestcurrentPurchaseArray);
-disp (bestStoreList);
+disp(bestStoreList);
 disp(bestSolnCost);
