@@ -15,11 +15,11 @@ import java.util.Random;
 
 public class RandomData
 {
-	static final int numStores = 100;
-	static final int numLocations = 10;
+	static final int numStores = 500;
+	static final int numLocations = 25;
 	
-	static final String OUTPUT_DISTANCE_FILE_NAME = "outputDistanceLarge.txt";
-	static final String OUTPUT_INVENTORY_FILE_NAME = "outputInventoryLarge.txt";
+	static final String OUTPUT_DISTANCE_FILE_NAME = "outputDistance500.txt";
+	static final String OUTPUT_INVENTORY_FILE_NAME = "outputInventory500.txt";
 	static final String INPUT_ITEMS_NAME = "items.txt";
 	static final int seed = 0;
 	
@@ -30,10 +30,10 @@ public class RandomData
 	final static Charset ENCODING = StandardCharsets.UTF_8;
 
 	
-	static final int MAX_DISTANCE = 1000;
+	static final int MAX_DISTANCE = numStores * 20;
 	static final int MIN_DISTANCE = 1;
 	
-	static final int maxStoreValue = 1000;
+	static final int maxStoreValue = 1500;
 	static final int minStoreValue = 50;
 	
 	static final int maxItemValue = 10000;
