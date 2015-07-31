@@ -8,6 +8,9 @@ function [ new_pos ] = Adding( position, velocity )
 %new_pos = Adding(position, velocity);
 % Confirm that new_pos = [6 2 5 1 3 4 7]
 
+%Remove extra zeros
+velocity(any(velocity==0,2),:) = [];
+
 [numVelocity, n] = size (velocity);
 new_pos = position;
 

@@ -19,16 +19,21 @@ function [ velocity_new ] = Multiply( velocity, c )
 %velocity_new = Multiply(velocity, c);
 % Confirm that velocity_new =  []
 
+%Remove extra zeros
+velocity(any(velocity==0,2),:) = [];
+
 velocity_new = velocity;
 [numVelocity, n] = size(velocity);
+if (numVelocity == 0 || n == 0)
+    return
+end
 
 if (c == 0)
     velocity_new = [];
-elseif (c < 1)
+elseif (c <= 1)
     velocity_new(numVelocity,:) = [];
 elseif (c > 1)
     new_row = velocity(1,:);
-    size(new_row)
     velocity_new = [velocity_new; new_row];
 end
 

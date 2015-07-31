@@ -15,12 +15,12 @@ velocity = zeros(numPositions, 2);
 
 count = 1;
 for i = 1:numPositions
-    if(position1(i) ~= position2(i))
+    if( not( isequal(position1(i), position2(i)) ) )
         velocity(count, 1) = i;
         numDiff = position1(i);
         
         for j = 1:numPositions
-            if(position2(j) == numDiff)
+            if(isequal(position2(j), numDiff))
                 velocity(count, 2) = j;
             end
         end
