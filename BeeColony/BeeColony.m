@@ -114,6 +114,8 @@ while (runNum < maxNumRuns)
         itemPurchaseArray = dataMap('currPurchaseArray');
         oldSolnCost = dataMap('currSolnCost');
         
+		
+		%NEIGHBOURHOOD OPERATOR TODO (only swap right now)
         newSolnRoute = midRoute;
         newSolnStoreList = currentStoreList;
         newItemPurchaseArray = itemPurchaseArray;
@@ -163,7 +165,7 @@ while (runNum < maxNumRuns)
     for onlookerIndex =1:numOnlookerBee
         
         randomNumber = rand();
-        %index = pickFrom(??TODO); TODOOOOOOOOOOOO
+        index = rouletteWheel(solnCostArray);
         beeNum = index;
         dataMap = beeArray{beeNum};
         midRoute = dataMap('route');
@@ -174,6 +176,7 @@ while (runNum < maxNumRuns)
         newSolnStoreList = currentStoreList;
         newItemPurchaseArray = itemPurchaseArray;
         
+		%NEIGHBOURHOOD OPERATOR TODO (only swap right now)
         firstSlot = randi(numItems);
         secondSlot = randi(numItems);
 
@@ -202,6 +205,7 @@ while (runNum < maxNumRuns)
             dataMap('route') = newSolnRoute;
             dataMap('currSolnCost') = currentSolnCost;
             dataMap('currPurchaseArray') = newItemPurchaseArray;
+		    dataMap('age') = 0; %We were noticed & improved by onlooker, refresh age
             
         end
         
@@ -211,11 +215,10 @@ while (runNum < maxNumRuns)
            bestStoreRoute = newSolnRoute;
         end
         
-        dataMap('age') = 0; %We were noticed by onlooker, refrseh age.
         beeArray{beeNum} = dataMap;
     end
     
-    %Weed out abandoned solns.
+    %Weed out abandoned solns. & generate new to replace.
     for i =1:numEmployedBee
         dataMap = beeArray{beeNum};
         
@@ -278,3 +281,4 @@ end
 %http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=5946125
 %http://mf.erciyes.edu.tr/abc/pub/PsuedoCode.pdf
 %https://en.wikipedia.org/wiki/Artificial_bee_colony_algorithm
+%http://popot.googlecode.com/svn/trunk/Trash/Documents/ABC/Karaboga2012.pdf
