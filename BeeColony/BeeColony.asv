@@ -163,7 +163,7 @@ while (runNum < maxNumRuns)
     for onlookerIndex =1:numOnlookerBee
         
         randomNumber = rand();
-        %index = pickFrom(??TODO); TODOOOOOOOOOOOO
+        %index = pickFrom(??TODO);
         beeNum = index;
         dataMap = beeArray{beeNum};
         midRoute = dataMap('route');
@@ -277,4 +277,3 @@ end
 %... todo.
 %http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=5946125
 %http://mf.erciyes.edu.tr/abc/pub/PsuedoCode.pdf
-%https://en.wikipedia.org/wiki/Artificial_bee_colony_algorithm
