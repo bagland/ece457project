@@ -189,13 +189,12 @@ while (iter < maxIterations && noIterImprovement < noIterImprovementExit)
        r1 = rand;
        r2 = rand;
        inertia = velStores(i,:)*w;
-       
        cognitive = FindDiff(pbestPurchaseArray(i,:), currPurchaseArray(i,:),  pbestStoreList(i, :), currStoreList(i,:))*r1*c1;
        social = FindDiff(bestcurrentPurchaseArray, currPurchaseArray(i,:), bestStoreList, currStoreList(i,:))*r1*c1;
 %        if (i==1)
-%            inertia
-%            cognitive
-%            social
+%             inertia
+%             cognitive
+%             social
 %             pbestSol = pbestStoreList(i, :)
 %             pbestList = pbestPurchaseArray(i,:)
 %             gbestSol = bestStoreList
@@ -209,8 +208,7 @@ while (iter < maxIterations && noIterImprovement < noIterImprovementExit)
            velStores(i,j) = temp(j);
        end
        %x[t+1] = x[t] + v[t+1]
-       %currPurchaseArray(i,:) = GetDiffStore(currPurchaseArray(i,:),
-       %temp); % Doesn't change
+       %currPurchaseArray(i,:) = GetDiffStore(currPurchaseArray(i,:),temp); % Doesn't change
        
 %        if (i == 1)
 %        before = currStoreList(i,:);
@@ -234,6 +232,17 @@ while (iter < maxIterations && noIterImprovement < noIterImprovementExit)
        cognitive = Multiply(Multiply(Subtracting(pbestPurchaseArray(i,:), currPurchaseArray(i,:)), r1), c1);
        social = Multiply(Multiply(Subtracting(bestcurrentPurchaseArray, currPurchaseArray(i,:)), r2), c2);
        %v[t+1] = w*v[t] + c1*rand()*(pbest[]-x[t]) + c2*rand()*(gbest[]-x[t])
+       
+%        if( i == 1)
+%        inertia
+%        cognitive
+%        social
+%        end
+       
+% TODO - fix the augmentation/truncation to use value correctly
+% TODO - increase particle size/etc or tweak parameters to get convergence
+% TODO - test if one or both are converging
+
        temp = [inertia;cognitive;social];
        [a, b] = size(temp);
        if (a ~= 0)
@@ -243,9 +252,18 @@ while (iter < maxIterations && noIterImprovement < noIterImprovementExit)
                end
            end
        end
+%        if (i==1)
+%        velocity(:,:,i)
+%        beforeList = currPurchaseArray(i,:)
+%        beforeStore = currStoreList(i,:)
+%        end
        %x[t+1] = x[t] + v[t+1]
        currPurchaseArray(i,:) = Adding(currPurchaseArray(i,:), temp);
        currStoreList(i,:) = Adding(currStoreList(i,:), temp);
+       %if (i==1)
+       %afterList = currPurchaseArray(i,:)
+       %afterStore = currStoreList(i,:)
+       %end
     end
 
     for i = 1:numParticles
