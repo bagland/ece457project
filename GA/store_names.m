@@ -10,4 +10,6 @@ function [ storenames ] = store_names( filename )
        storenames{iteration} = line{1};		
        iteration = iteration+1;		
     end		
+    
+    fclose(fileId);
 end

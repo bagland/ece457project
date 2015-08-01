@@ -20,5 +20,7 @@ function distance_map = parse_distances( filename )
         distance_map(city_name{1}) = distances;
         iteration = iteration+1;
     end
+    
+    fclose(fileId);
 end
 
