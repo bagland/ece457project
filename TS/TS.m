@@ -1,5 +1,9 @@
-%User Input requirements, pick depot + what they want to purchase
-% You need more than 2 items to swap.
+%{
+	User Input requirements, start location + what they want to purchase
+	objective function: SolnCost = weightDist * distanceCost + weightPrice * priceCost
+	Tabu memory: swap stores, take MIN cost per iteration
+	Tabu length- adaptive approach
+%}
 
 %shopping list
 currentPurchaseArray = {'Apples', 'Chicken', 'Oranges', 'Duck', 'VeryExpensiveItem', 'Stationery', 'MediumItem'};
@@ -28,8 +32,8 @@ numItems = size(currentPurchaseArray);
 
 %Initialize TS params
 tabu_length = 3;
-num_stores = size(storeNames);
-tabu_mem = [num_stores,num_stores];
+dim_store = size(storeNames,1);
+tabu_mem = zeros(dim_store, dim_store);
 
 
 % distanceMap('Location_1');
@@ -92,12 +96,14 @@ iterStoreList = currentStoreList;
 maxNumRuns = 5
 runNum = 0;
 totalLoopTimeTaken = 0;
+% main search loop
 while (runNum < maxNumRuns)
     
     tic
     %TS swap
 	if (rand() < swapProbability && numItems(2) > 1)
 		initRoute = midRoute;
+        cost = zeros(dim_store);
 		
         for numSwaps = 1 : size(midRoute)
             %disp('swap');
@@ -128,10 +134,33 @@ while (runNum < maxNumRuns)
             temp = currentStoreList{firstSlot};
             currentStoreList{firstSlot} = currentStoreList{secondSlot};
             currentStoreList{secondSlot} = temp;
+			
+			% evaluate swapped cost
+			[distCost, priceCost] = evaluateSoln(midRoute,currentPurchaseArray,currentStoreList, purchaseAmountMap, distanceMap, inventoryMap, storeNames);
+			currentSolnCost = weightDist * distCost + weightPrice * priceCost;
+			
+			%append value to route cost to array
+			cost(numSwaps)= currentSolnCost;
         end
+		
+		% select swap store pair with lowest cost from array, input tabu entry
+		[val,I] = min(cost);
+		
 		
     end
 	
+	% decrement all tabu entry by 1
+	for row = 1:dim_store-1 
+	   for col = row+1:dim_store 
+
+		 if tabu_mem(row,col)>0 
+		 
+			tabu_mem(row,col)= tabu_mem(row,col) - 1; 
+			tabu_mem(col,row)= tabu_mem(row,col); 
+
+		 end 
+	   end 
+	end 
     
     % new trip, 
     if (rand() < randomStoreProbability)
@@ -146,11 +175,8 @@ while (runNum < maxNumRuns)
             currentStoreList{whatItem} = storeKeys{whatStore};
             midRoute{whatItem+1} = storeKeys{whatStore};
         end
+		
     end
-   
-    %Eval soln
-    [distCost, priceCost] = evaluateSoln(midRoute,currentPurchaseArray,currentStoreList, purchaseAmountMap, distanceMap, inventoryMap, storeNames);
-    currentSolnCost = weightDist * distCost + weightPrice * priceCost;
         
     runNum = runNum + 1;
     
