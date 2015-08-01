@@ -14,14 +14,17 @@ function [distance, price] = evaluateSoln( route, items, stores, purchaseAmountM
     % Remove all uniques without losing order of stores!!!
     % You dont need to visit a store twice.
     [u i]=unique(route,'first');
-    route(sort(i));
+    newRoute = route(sort(i));
     
-    %This should've removed the 2nd end location... why does this work...
-    %?????????
+    %Append the last location back on.
+    lastCell = size(newRoute, 2);
+    lastCell = lastCell + 1;
+    newRoute{lastCell} = newRoute{1};
+  
     %Solve for distance
-    for i = 2:size(route,2)
+    for i = 2:size(newRoute,2)
         locationPrev = locationNext;
-        locationNext = route{i};
+        locationNext = newRoute{i};
         vDistances = distanceMap(locationPrev);
         index = getnameidx(storeNames,locationNext);
         distanceCost = vDistances{index};

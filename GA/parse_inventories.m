@@ -30,7 +30,7 @@ function storePrice = parse_inventories( filename )
            end
        end
     end
-
+    fclose(fileId);
 %     This is an example of how to use a resulted map    
 %     storePrice_keys = keys(storePrice);
 %     for i=1:numel(storePrice_keys)
