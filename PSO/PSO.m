@@ -21,16 +21,16 @@ numItems = size(currentPurchaseArray);
 %Initial paramters
 numParticles = 10;  %size of the swarm
 probDim = 2;    %unused, dimension of the problem
-maxIterations = 1000;   %maximum number of iterations
+maxIterations = 10000;   %maximum number of iterations
 swarmSize = 10; %unused
 neighbourhoodSize = 1;  %unused (whole swarm is a neighbourhood)
 c1 = 1.1; %acceleration coefficient - cognitive parameter
 c2 = 4-c1;  %acceleration coefficient - social parameter
-w = 0.792;  %inertia weight
+w = 1; %0.792;  %inertia weight
 
 %Other parameters
 noIterImprovement = 0;
-noIterImprovementExit = 500;
+noIterImprovementExit = 5000;
 
 %Objective function
 weightDist = 0.5;
@@ -65,6 +65,67 @@ for itemName = currentPurchaseArray
     end
     count = count + 1;
 end
+
+possibleStores
+% stores = [14 1 0 12 11 16 1];
+% originalItemsList = [1 2 3 4 5 6 7];
+% items = [2 3 5 7 6 1 4];
+% getNew = [1 0 0 0 0 1 0];
+% 
+% possibleStores = cell(7, 6);
+% possibleStores
+% 
+% possibleStores{1,1} = 11;
+% possibleStores{1,2} = 16;
+% possibleStores{1,3} = 19;
+% possibleStores{1,4} = 27;
+% possibleStores{1,5} = 3;
+% possibleStores{1,6} = 4;
+% 
+% possibleStores{2,1} = 12;
+% possibleStores{2,2} = 14;
+% possibleStores{2,3} = 17;
+% possibleStores{2,4} = 2;
+% possibleStores{2,5} = 22;
+% possibleStores{2,6} = 6;
+% 
+% possibleStores{3,1} = 1;
+% possibleStores{3,2} = 13;
+% possibleStores{3,3} = 22;
+% possibleStores{3,4} = 23;
+% possibleStores{3,5} = 3;
+% possibleStores{3,6} = 5;
+% 
+% possibleStores{4,1} = 1;
+% possibleStores{4,2} = 11;
+% possibleStores{4,3} = 15;
+% possibleStores{4,4} = 18;
+% possibleStores{4,5} = 2;
+% possibleStores{4,6} = 5;
+% 
+% possibleStores{5,1} = 0;
+% possibleStores{5,2} = 29;
+% possibleStores{5,3} = 4;
+% possibleStores{5,4} = 8;
+% possibleStores{5,5} = 9;
+% possibleStores{5,6} = 7;
+% 
+% possibleStores{6,1} = 12;
+% possibleStores{6,2} = 16;
+% possibleStores{6,3} = 2;
+% possibleStores{6,4} = 27;
+% possibleStores{6,5} = 4;
+% possibleStores{6,6} = 5;
+% 
+% possibleStores{7,1} = 18;
+% possibleStores{7,2} = 2;
+% possibleStores{7,3} = 24;
+% possibleStores{7,4} = 26;
+% possibleStores{7,5} = 27;
+% possibleStores{7,6} = 9;
+% possibleStores
+% possibleStores = [11 16 19 27 3 4; 12 14 17 2 22 6; 1 13 22 23 3 5; 1 11 15 18 2 5; 0 29 4 8 9 7; 12 16 2 27 4 5; 18 2 24 26 27 9];
+% newStores = GetDiffStore(stores, items, originalItemsList, getNew, possibleStores);
 
 for i = 1:numParticles
     storeList = cell(numItems);
@@ -128,19 +189,43 @@ while (iter < maxIterations && noIterImprovement < noIterImprovementExit)
        r1 = rand;
        r2 = rand;
        inertia = velStores(i,:)*w;
+       
        cognitive = FindDiff(pbestPurchaseArray(i,:), currPurchaseArray(i,:),  pbestStoreList(i, :), currStoreList(i,:))*r1*c1;
        social = FindDiff(bestcurrentPurchaseArray, currPurchaseArray(i,:), bestStoreList, currStoreList(i,:))*r1*c1;
+%        if (i==1)
+%            inertia
+%            cognitive
+%            social
+%             pbestSol = pbestStoreList(i, :)
+%             pbestList = pbestPurchaseArray(i,:)
+%             gbestSol = bestStoreList
+%             gbestList = bestcurrentPurchaseArray
+%        end       
        %v[t+1] = w*v[t] + c1*rand()*(pbest[]-x[t]) + c2*rand()*(gbest[]-x[t])
        temp = inertia*probabilityDistribution(1) + cognitive*probabilityDistribution(2) + social*probabilityDistribution(3);
-       a = size(temp);
-       for j = 1:a
+
+       [a, b] = size(temp);
+       for j = 1:b
            velStores(i,j) = temp(j);
        end
        %x[t+1] = x[t] + v[t+1]
        %currPurchaseArray(i,:) = GetDiffStore(currPurchaseArray(i,:),
        %temp); % Doesn't change
-       currStoreList(i,:) = GetDiffStore(currStoreList(i,:), currPurchaseArray(i,:), originalItemsList, temp, possibleStores);
        
+%        if (i == 1)
+%        before = currStoreList(i,:);
+%        addingVal = temp;
+%        end
+       currStoreList(i,:) = GetDiffStore(currStoreList(i,:), currPurchaseArray(i,:), originalItemsList, temp, possibleStores);
+        
+%        if (i==1)
+%            after = currStoreList(i,:);
+%            itemsList = currPurchaseArray(i,:)
+%            before
+%             after
+%             addingVal
+%        end
+
        %Get random values between 0 and 2
        r1 = 2*rand;
        r2 = 2*rand;
@@ -199,7 +284,7 @@ while (iter < maxIterations && noIterImprovement < noIterImprovementExit)
     iter = iter + 1;
     
     solnXAxis = [solnXAxis iter];
-    solnYAxis = [solnYAxis min_pbest];
+    solnYAxis = [solnYAxis min_iter];
     
     %Do not include graph draw time in the loop time
     loopTimeTaken = toc;
@@ -247,3 +332,13 @@ disp(gbest);
 %    'Store_27'    'Store_13'    'Store_5'    'Store_6'    'Store_16'    'Store_16'    'Store_4'
 
 %   4.0375e+03
+
+% possibleStores = 
+% 
+%     'Store_11'    'Store_16'    'Store_19'    'Store_27'    'Store_3'     'Store_4'            []
+%     'Store_12'    'Store_14'    'Store_17'    'Store_2'     'Store_22'    'Store_6'            []
+%     'Store_1'     'Store_13'    'Store_22'    'Store_23'    'Store_3'     'Store_5'            []
+%     'Store_0'     'Store_11'    'Store_15'    'Store_18'    'Store_2'     'Store_5'     'Store_7'
+%     'Store_0'     'Store_29'    'Store_4'     'Store_8'     'Store_9'             []           []
+%     'Store_11'    'Store_12'    'Store_16'    'Store_2'     'Store_27'    'Store_4'     'Store_5'
+%     'Store_12'    'Store_18'    'Store_2'     'Store_24'    'Store_26'    'Store_27'    'Store_9'

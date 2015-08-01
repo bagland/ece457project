@@ -8,10 +8,8 @@ function [ new_stores ] = GetDiffStore( stores, items, originalList, getNew, pos
 %originalItemsList = [1 2 3 4 5 6 7];
 %items = [2 3 5 7 6 1 4];
 %getNew = [1 0 0 0 0 1 0];
-%possibleStores = [11 16 19 27 3 4; 12 14 17 2 22 6; 1 13 22 23 3 5;
-%1 11 15 18 2 5 7; 0 29 4 8 9; 11 12 16 2 27 4 5; 12 18 2 24 26
-%27 9];
-%newStores = GetDiffStore(stores, items, getNew, possibleStores);
+%possibleStores = [11 16 19 27 3 4; 12 14 17 2 22 6; 1 13 22 23 3 5; 1 11 15 18 2 5; 0 29 4 8 9 7; 12 16 2 27 4 5; 18 2 24 26 27 9];
+%newStores = GetDiffStore(stores, items, originalItemsList, getNew, possibleStores);
 % Confirm that newStores = [X 1 0 12 11 X 1]
 
 numStores = length(stores);
