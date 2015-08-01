@@ -4,6 +4,12 @@ function output = inRoute( route, i, storeName, numProducts )
     route = getRouteForAnt(route, i, numProducts);
 %     C = ['xyz' 'xxy' 'zyx']
 %     type = 'xyz';
-    output = any(strfind(route,storeName))
+    output = 0;
+    for r = route
+        if strcmp(r, storeName)
+            output = 1;
+            break;
+        end
+    end
 end
 
