@@ -102,7 +102,7 @@ while (runNum < maxNumRuns)
     tic
     %TS swap
 	if (rand() < swapProbability && numItems(2) > 1)
-		initRoute = midRoute;
+		tmpRoute = midRoute;
         cost = zeros(dim_store);
 		
         for numSwaps = 1 : size(midRoute)
@@ -126,9 +126,9 @@ while (runNum < maxNumRuns)
             storeList{secondSlot} = temp;
 
             %Swap in the route
-            temp = initRoute{firstSlot+1};
-            initRoute{firstSlot+1} = initRoute{secondSlot+1};
-            initRoute{secondSlot+1} = temp;
+            temp = tmpRoute{firstSlot+1};
+            tmpRoute{firstSlot+1} = tmpRoute{secondSlot+1};
+            tmpRoute{secondSlot+1} = temp;
 
             %swap the current store order.
             temp = currentStoreList{firstSlot};
@@ -146,6 +146,7 @@ while (runNum < maxNumRuns)
 		% select swap store pair with lowest cost from array, input tabu entry
 		[val,I] = min(cost);
 		
+		% insert tabu_length into tabu_mem(I)
 		
     end
 	
