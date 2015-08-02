@@ -37,12 +37,10 @@ end
 if (c == 0)
     velocity_new = [];
 elseif (c <= 1)
-    %velocity_new(numVelocity,:) = [];
     for i = 1:newSize
         velocity_new(i,:) = velocity(i,:);
     end
 elseif (c > 1)
-    %new_row = velocity(1,:);
     for i = 1:newSize
         index = mod(i, numVelocity);
         if (index == 0)
@@ -50,7 +48,6 @@ elseif (c > 1)
         end
         velocity_new(i,:) = velocity(index,:);
     end
-    %velocity_new = [velocity_new; new_row];
 end
 
 end

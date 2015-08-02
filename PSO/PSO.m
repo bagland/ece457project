@@ -118,7 +118,11 @@ bestStoreList = pbestStoreList(index,:);
 %Graphing
 solnXAxis = 0;
 solnYAxis = gbest;
-thePlot = plot(solnXAxis, solnYAxis, 'YDataSource', 'solnYAxis', 'XDataSource', 'solnXAxis')
+solnYAxis2 = gbest;
+
+thePlot = plot(solnXAxis, solnYAxis, 'YDataSource', 'solnYAxis', 'XDataSource', 'solnXAxis');
+hold on;
+thePlot2 = plot(solnXAxis, solnYAxis2, 'YDataSource', 'solnYAxis2', 'XDataSource', 'solnXAxis')
 
 %Iteration loop
 iter = 0;
@@ -225,14 +229,16 @@ while (iter < maxIterations && noIterImprovement < noIterImprovementExit)
     
     solnXAxis = [solnXAxis iter];
     solnYAxis = [solnYAxis min_iter];
-    
+    solnYAxis2 = [solnYAxis2 gbest];
+
     %Do not include graph draw time in the loop time
     loopTimeTaken = toc;
     totalLoopTimeTaken = totalLoopTimeTaken + loopTimeTaken;
     
     %Graph update
     if (mod(iter, 10) == 0)
-       set (thePlot, 'Xdata',solnXAxis, 'YData',  solnYAxis)
+       refreshdata(thePlot);
+       refreshdata(thePlot2);
        drawnow
     end
 end
