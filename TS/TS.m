@@ -2,6 +2,7 @@
 	User Input requirements, start location + what they want to purchase
 	objective function: SolnCost = weightDist * distanceCost + weightPrice * priceCost
 	Tabu memory: swapped stores, take MIN cost per iteration
+	Aspiration: willing to accept tabu solution iff solution is better than best overall solution so far
 	Tabu length- adaptive approach
 %}
 
@@ -27,14 +28,11 @@ storeNames = store_names('outputDistance.txt');
 numItems = size(currentPurchaseArray);
 
 %Initialize required TS params
-tabu_length = 4;
+tabu_length = 5;
 dim_store = size(storeNames,2);
 currentBestSol = inf;
 currentSolnCost = 0;
 tabu_mem = zeros(dim_store, dim_store);
-
-
-%adaptive Neighbourhood operator
 
 
 %Objective Fcn
@@ -83,7 +81,7 @@ iterSolnCost = currentSolnCost;
 itercurrentPurchaseArray = currentPurchaseArray;
 iterStoreList = currentStoreList;
 
-maxNumRuns = 10;
+maxNumRuns = 100;
 runNum = 0;
 totalLoopTimeTaken = 0;
 % main search loop
@@ -91,129 +89,126 @@ while (runNum < maxNumRuns)
     
     tic
     %TS swap
-	%if ( numItems(2) > 1) % does numItems ever gets decrement below 1?
-		tmpRoute = midRoute;
-        tmpStoreList = storeList;
-		tmpCurrentStoreList = currentStoreList;
-		tmpCurrentPurchase = currentPurchaseArray;
-		swap_pair = {}; % each element has [row index, col index, cost value]
-		numSwaps = 1;
-		
-		% go thru all possible pairwise swaps
-		for firstSlot =1: size(midRoute)
-			for secondSlot = firstSlot+1 : size(midRoute)
+	tmpRoute = midRoute;
+	tmpstoreList = storeList;
+	tmpcurrentStoreList = currentStoreList;
+	tmpcurrentPurchaseArray = currentPurchaseArray;
+	swap_pair = {}; % each element has [row index, col index, cost value]
+	numSwaps = 1;
+	revoke_T = 0;
+	
+	% go thru all possible pairwise swaps
+	for firstSlot =1: size(tmpcurrentStoreList, 2)
+		for secondSlot = firstSlot+1 : size(tmpcurrentStoreList, 2)
 				
-				% considered both tabu memory and aspiration criteria
-				if(tabu_mem(firstSlot, secondSlot) >1 && currentBestSol < currentSolnCost)
-					%tabu append route cost to very large cost, so won't be eval as lowest obj function
-					swap_pair{1, numSwaps} = [firstSlot,secondSlot, inf];
-					
-				else
-					%Swap the items in the grocery list, the currentPurchaseArray
-					temp = tmpcurrentPurchaseArray{firstSlot};
-					tmpcurrentPurchaseArray{firstSlot} = tmpcurrentPurchaseArray{secondSlot};
-					tmpcurrentPurchaseArray{secondSlot} = temp;
+			%Swap the items in the grocery list, the currentPurchaseArray
+			temp = tmpcurrentPurchaseArray{firstSlot};
+			tmpcurrentPurchaseArray{firstSlot} = tmpcurrentPurchaseArray{secondSlot};
+			tmpcurrentPurchaseArray{secondSlot} = temp;
 
-					%Swap them in the reference store list. (need these keys in order)
-					temp = tmpstoreList{firstSlot};
-					tmpstoreList{firstSlot} = tmpstoreList{secondSlot};
-					tmpstoreList{secondSlot} = temp;
+			%Swap them in the reference store list. (need these keys in order)
+			temp = tmpstoreList{firstSlot};
+			tmpstoreList{firstSlot} = tmpstoreList{secondSlot};
+			tmpstoreList{secondSlot} = temp;
 
-					%Swap in the route, frist node in midroute isn't a store
-					temp = tmpRoute{firstSlot+1};
-					tmpRoute{firstSlot+1} = tmpRoute{secondSlot+1};
-					tmpRoute{secondSlot+1} = temp;
+			%Swap in the route, frist node in midroute isn't a store
+			temp = tmpRoute{firstSlot+1};
+			tmpRoute{firstSlot+1} = tmpRoute{secondSlot+1};
+			tmpRoute{secondSlot+1} = temp;
 
-					%swap the current store order.
-					temp = tmpcurrentStoreList{firstSlot};
-					tmpcurrentStoreList{firstSlot} = tmpcurrentStoreList{secondSlot};
-					tmpcurrentStoreList{secondSlot} = temp;
-					
-					% evaluate swapped obj func solution
-					[distCost, priceCost] = evaluateSoln(midRoute,tmpcurrentPurchaseArray,tmpcurrentStoreList, purchaseAmountMap, distanceMap, inventoryMap, storeNames);
-					currentSolnCost = weightDist * distCost + weightPrice * priceCost;
-					
-					%append currentsolution to temporary memory
-					swap_pair{1, numSwaps} = [firstSlot,secondSlot, currentSolnCost];
-					
-				end
-				numSwaps = numSwaps +1;
-			end
+			%swap the current store order.
+			temp = tmpcurrentStoreList{firstSlot};
+			tmpcurrentStoreList{firstSlot} = tmpcurrentStoreList{secondSlot};
+			tmpcurrentStoreList{secondSlot} = temp;
 			
-        end
-		
-		% find min cost from all swap pair solutions
-		% matlab list counts from index 1 instead of 0
-		tmpCost = inf;
-		tmpi =1;
-		tmpj=1;
-		for k = 1:size(swap_pair) 
-			 if (swap_pair{1,k}(3) < tmpCost)
-				tmpCost = swap_pair{i,k}(3);
-				tmpi = swap_pair{1,k}(1);
-				tmpj= swap_pair{1,k}(2);
-			 end 
-		end 
-		
-		%update current best solution for aspiration criteria
-		if(currentBestSol > tmpCost)
-			currentBestSol = tmpCost;
+			% evaluate swapped obj func solution
+			[distCost, priceCost] = evaluateSoln(midRoute,tmpcurrentPurchaseArray,tmpcurrentStoreList, purchaseAmountMap, distanceMap, inventoryMap, storeNames);
+			currentSolnCost = weightDist * distCost + weightPrice * priceCost;
+			
+			% considered both tabu memory and aspiration criteria
+			if(tabu_mem(firstSlot, secondSlot) >1 && currentBestSol < currentSolnCost)
+				%case tabu, append route cost to very large cost, so won't be eval as lowest obj function
+				swap_pair{1, numSwaps} = [firstSlot,secondSlot, inf];
+			elseif(tabu_mem(firstSlot, secondSlot) >1 && currentBestSol > currentSolnCost)
+				% case aspiration, apply adaptive operator
+				revoke_T = 1;
+				
+				swap_pair{1, numSwaps} = [firstSlot,secondSlot, currentSolnCost];
+			else
+				% case no tabu, simply store currentsolution to temporary memory
+				swap_pair{1, numSwaps} = [firstSlot,secondSlot, currentSolnCost];
+			end
+				
+			
+			numSwaps = numSwaps +1;
 		end
 		
-		% insert tabu_length into tabu matrix
+	end
+	
+	% find min cost from all swap pair solutions
+	% matlab list counts from index 1 instead of 0
+	tmpCost = inf;
+	tmpi =1;
+	tmpj=1;
+	for k = 1:size(swap_pair, 2) 
+		 if (swap_pair{1,k}(3) < tmpCost)
+			tmpCost = swap_pair{1,k}(3);
+			tmpi = swap_pair{1,k}(1);
+			tmpj= swap_pair{1,k}(2);
+		 end 
+	end 
+	
+	%update current best solution for aspiration criteria
+	if(currentBestSol > tmpCost)
+		currentBestSol = tmpCost;
+	end
+	
+	% insert tabu_length into tabu matrix
+	if(revoke_T > 0)
+		tabu_mem(tmpi,tmpj) = 0;
+	else
 		tabu_mem(tmpi,tmpj) = tabu_length;
+	end
 		
-		%finally, execute actual current best swap for next iteration
-		%Swap the items in the grocery list, the currentPurchaseArray
-		temp = currentPurchaseArray{tmpi};
-		currentPurchaseArray{tmpi} = currentPurchaseArray{tmpj};
-		currentPurchaseArray{tmpj} = temp;
+	
+	%finally, execute actual current best swap for next iteration
+	%Swap the items in the grocery list, the currentPurchaseArray
+	temp = currentPurchaseArray{tmpi};
+	currentPurchaseArray{tmpi} = currentPurchaseArray{tmpj};
+	currentPurchaseArray{tmpj} = temp;
 
-		%Swap them in the reference store list. (need these keys in order)
-		temp = storeList{tmpi};
-		storeList{tmpi} = storeList{tmpj};
-		storeList{tmpj} = temp;
+	%Swap them in the reference store list. (need these keys in order)
+	temp = storeList{tmpi};
+	storeList{tmpi} = storeList{tmpj};
+	storeList{tmpj} = temp;
 
-		%Swap in the route, frist node in midroute isn't a store
-		temp = midRoute{tmpi+1};
-		midRoute{tmpi+1} = midRoute{tmpj+1};
-		midRoute{tmpj+1} = temp;
+	%Swap in the route, frist node in midroute isn't a store
+	temp = midRoute{tmpi+1};
+	midRoute{tmpi+1} = midRoute{tmpj+1};
+	midRoute{tmpj+1} = temp;
 
-		%swap the current store order.
-		temp = currentStoreList{tmpi};
-		currentStoreList{tmpi} = currentStoreList{tmpj};
-		currentStoreList{tmpj} = temp;
-		
-		
-    %end
+	%swap the current store order.
+	temp = currentStoreList{tmpi};
+	currentStoreList{tmpi} = currentStoreList{tmpj};
+	currentStoreList{tmpj} = temp;
 	
 	% decrement all tabu entry by 1 at end of iteration, for recency sake
-	for row = 1:size(tabu_mem)
-	   for col = row+1:size(tabu_mem) 
-
-		 if tabu_mem(row,col) > 0 
-			tabu_mem(row,col)= tabu_mem(row,col) - 1; 
-			tabu_mem(col,row)= tabu_mem(col,row) - 1;
-		 end 
+	for row = 1:size(tabu_mem, 2)
+	   for col = row+1:size(tabu_mem, 2) 
+			if(row ~= tmpi && col ~= tmpj)
+				 if (tabu_mem(row,col) > 0) 
+					tabu_mem(row,col)= tabu_mem(row,col) - 1; 
+					tabu_mem(col,row)= tabu_mem(row, col);
+				 end 
+			end
 	   end 
 	end 
+	
+	%update best soln for output
+	bestSolnCost = currentBestSol;
+	bestcurrentPurchaseArray = currentPurchaseArray;
+	bestStoreList = currentStoreList;
     
-    % new trip, how to generate new swapped route, not random trip
-    % if (rand() < randomStoreProbability)
-        %Random Store
-        %disp('randomstore.');
-        % for numRandomStores = 1 : numRandomStoreToMake
-            % whatItem = randi(numItems); %Pick which item select a different store.
-            % itemCharName = currentPurchaseArray{whatItem};
-            % storeItemMap = inventoryMap(itemCharName); %Get what stores sell that item
-            % storeKeys = keys(storeItemMap);
-            % whatStore = randi(size(storeKeys)); % Pick a random store in that list
-            % currentStoreList{whatItem} = storeKeys{whatStore};
-            % midRoute{whatItem+1} = storeKeys{whatStore};
-        % end
-		
-    % end
-        
     runNum = runNum + 1;
     
     %DO NOT INCLUDE GRAPH DRAW TIME IN LOOP TIME
