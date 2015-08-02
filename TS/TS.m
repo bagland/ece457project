@@ -33,6 +33,7 @@ dim_store = size(storeNames,2);
 currentBestSol = inf;
 currentSolnCost = 0;
 tabu_mem = zeros(dim_store, dim_store);
+prev_iter_sol= 0;
 
 
 %Objective Fcn
@@ -81,7 +82,7 @@ iterSolnCost = currentSolnCost;
 itercurrentPurchaseArray = currentPurchaseArray;
 iterStoreList = currentStoreList;
 
-maxNumRuns = 100;
+maxNumRuns = 50;
 runNum = 0;
 totalLoopTimeTaken = 0;
 % main search loop
@@ -130,9 +131,8 @@ while (runNum < maxNumRuns)
 				%case tabu, append route cost to very large cost, so won't be eval as lowest obj function
 				swap_pair{1, numSwaps} = [firstSlot,secondSlot, inf];
 			elseif(tabu_mem(firstSlot, secondSlot) >1 && currentBestSol > currentSolnCost)
-				% case aspiration, apply adaptive operator
+				% case aspiration
 				revoke_T = 1;
-				
 				swap_pair{1, numSwaps} = [firstSlot,secondSlot, currentSolnCost];
 			else
 				% case no tabu, simply store currentsolution to temporary memory
@@ -161,6 +161,13 @@ while (runNum < maxNumRuns)
 	%update current best solution for aspiration criteria
 	if(currentBestSol > tmpCost)
 		currentBestSol = tmpCost;
+	end
+	
+	% apply adaptive operator
+	if(prev_iter_sol > tmpCost)
+		tabu_length = tabu_length + 1; %deteriorated
+	elseif(prev_iter_sol < tmpCost)
+		tabu_length = tabu_length - 1; % improved
 	end
 	
 	% insert tabu_length into tabu matrix
@@ -203,6 +210,9 @@ while (runNum < maxNumRuns)
 			end
 	   end 
 	end 
+	
+	% adaptive, remember previous iteration
+	prev_iter_sol = tmpCost;
 	
 	%update best soln for output
 	bestSolnCost = currentBestSol;
