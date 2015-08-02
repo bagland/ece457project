@@ -26,11 +26,15 @@ swarmSize = 10; %unused
 neighbourhoodSize = 1;  %unused (whole swarm is a neighbourhood)
 c1 = 1.1; %acceleration coefficient - cognitive parameter
 c2 = 4-c1;  %acceleration coefficient - social parameter
-w = 1; %0.792;  %inertia weight
+w = 0.6;  %inertia weight
 
 %Other parameters
 noIterImprovement = 0;
-noIterImprovementExit = 5000;
+noIterImprovementExit = 1000;
+
+%Adaptation paramter
+adaptCounter = 0;
+noIterImprovementAdapt = noIterImprovementExit/10;
 
 %Objective function
 weightDist = 0.5;
@@ -202,7 +206,18 @@ while (iter < maxIterations && noIterImprovement < noIterImprovementExit)
 %        end       
        %v[t+1] = w*v[t] + c1*rand()*(pbest[]-x[t]) + c2*rand()*(gbest[]-x[t])
        temp = inertia*probabilityDistribution(1) + cognitive*probabilityDistribution(2) + social*probabilityDistribution(3);
-
+%         if (i == 1)
+%             inertia
+%             cognitive
+%             social
+%             temp
+%             myStore =  currStoreList(i,:)
+%             myList = currPurchaseArray(i,:)
+%             pbestSol = pbestStoreList(i, :)
+%              pbestList = pbestPurchaseArray(i,:)
+%              gbestSol = bestStoreList
+%              gbestList = bestcurrentPurchaseArray
+%         end
        [a, b] = size(temp);
        for j = 1:b
            velStores(i,j) = temp(j);
@@ -224,13 +239,45 @@ while (iter < maxIterations && noIterImprovement < noIterImprovementExit)
 %             addingVal
 %        end
 
-       %Get random values between 0 and 2
-       r1 = 2*rand;
-       r2 = 2*rand;
+       %Get random values between 0 and 1
+       r1 = rand;
+       r2 = rand;
+       
+       particleVelocity = velocity(:,:,i);
+       velocity(:,:,i) = 0;
+%        if (i==1)
+%            velocity(:,:,i)
+%        end
+%        [dim1, dim2] = size(velocity(:,:,i));
+%        if (a ~= 0)
+%            for j = 1:a
+%                for k = 1:b
+%                    velocity(j,k,i) = 0;
+%                end
+%            end
+%        end
+%        velocity(:,:,i)
+       particleVelocity(any(particleVelocity==0,2),:) = [];
+%          if (i == 1)
+%              check1 = particleVelocity
+%              check2 = velocity(:,:,i)
+%          end
+    
+       inertia = Multiply(particleVelocity, w);
+%        if (i == 1)
+%        particleVelocity
+%        w
+%        inertia
+%        end
+% if (i == 1)
+%     pbestPurchaseArray(i,:)
+%     currPurchaseArray(i,:)
+%     size(Subtracting(bestcurrentPurchaseArray, currPurchaseArray(i,:)))
+%     Subtracting(bestcurrentPurchaseArray, currPurchaseArray(i,:))
+% end
 
-       inertia = Multiply(velocity(:,:,i), w);
-       cognitive = Multiply(Multiply(Subtracting(pbestPurchaseArray(i,:), currPurchaseArray(i,:)), r1), c1);
-       social = Multiply(Multiply(Subtracting(bestcurrentPurchaseArray, currPurchaseArray(i,:)), r2), c2);
+       cognitive = Multiply(Subtracting(pbestPurchaseArray(i, :), currPurchaseArray(i,:)), r1*c1);
+       social = Multiply(Subtracting(bestcurrentPurchaseArray, currPurchaseArray(i,:)), r2*c2);
        %v[t+1] = w*v[t] + c1*rand()*(pbest[]-x[t]) + c2*rand()*(gbest[]-x[t])
        
 %        if( i == 1)
@@ -252,25 +299,29 @@ while (iter < maxIterations && noIterImprovement < noIterImprovementExit)
                end
            end
        end
+%         if (i == 1)
+%             next = velocity(:,:,i)
+%                end
+       
 %        if (i==1)
-%        velocity(:,:,i)
+%        temp
 %        beforeList = currPurchaseArray(i,:)
 %        beforeStore = currStoreList(i,:)
 %        end
        %x[t+1] = x[t] + v[t+1]
        currPurchaseArray(i,:) = Adding(currPurchaseArray(i,:), temp);
        currStoreList(i,:) = Adding(currStoreList(i,:), temp);
-       %if (i==1)
-       %afterList = currPurchaseArray(i,:)
-       %afterStore = currStoreList(i,:)
-       %end
+%        if (i==1)
+%        afterList = currPurchaseArray(i,:)
+%        afterStore = currStoreList(i,:)
+%        end
     end
 
     for i = 1:numParticles
         %Generate a random route.
         midRoute{1} = startLocation;
         count = 2;
-        for loc = currStoreList
+        for loc = currStoreList(i,:)
             midRoute{count} = loc{1};
             count = count + 1;
         end
@@ -299,6 +350,23 @@ while (iter < maxIterations && noIterImprovement < noIterImprovementExit)
        noIterImprovement = noIterImprovement + 1;
     end
    
+    % Explore or intensify if solution is improving or not.
+    if (adaptCounter >= noIterImprovementAdapt)
+        adaptCounter = 0;
+        if(iter < maxIterations/10)
+            w = w + 0.1;
+        else
+            w = w - 0.1;
+        end
+        if (w > 0.9)
+            w = 0.9;
+        elseif (w < 0.5)
+            w = 0.5;
+        end
+    else
+        adaptCounter = adaptCounter + 1;
+    end
+    
     iter = iter + 1;
     
     solnXAxis = [solnXAxis iter];
@@ -311,7 +379,6 @@ while (iter < maxIterations && noIterImprovement < noIterImprovementExit)
     %Graph update
     if (mod(iter, 10) == 0)
        set (thePlot, 'Xdata',solnXAxis, 'YData',  solnYAxis)
-       %refreshdata
        drawnow
     end
 end
@@ -334,7 +401,6 @@ disp(gbest);
 %
 %  4.1525e+03
 
-
 %Best soln in 512 runs
 %Avg loop time 1.282486e-01 seconds, full time taken 6.566331e+01
 %    'Stationery'    'Oranges'    'Duck'    'VeryExpensiveItem'    'Chicken'    'MediumItem'    'Apples'
@@ -348,8 +414,24 @@ disp(gbest);
 %    'MediumItem'    'Oranges'    'Duck'    'Chicken'    'Apples'    'Stationery'    'VeryExpensiveItem'
 %
 %    'Store_27'    'Store_13'    'Store_5'    'Store_6'    'Store_16'    'Store_16'    'Store_4'
-
+%
 %   4.0375e+03
+
+% Best soln in 6713 runs
+% Avg loop time 2.754413e-02 seconds, full time taken 1.849037e+02
+%     'Duck'    'Chicken'    'Apples'    'MediumItem'    'Stationery'    'VeryExpensiveItem'    'Oranges'
+% 
+%     'Store_0'    'Store_12'    'Store_4'    'Store_24'    'Store_4'    'Store_4'    'Store_3'
+% 
+%    4.0165e+03
+
+% Best soln in 3388 runs
+% Avg loop time 2.813805e-02 seconds, full time taken 9.533172e+01
+%     'MediumItem'    'Oranges'    'Apples'    'Stationery'    'VeryExpensiveItem'    'Chicken'    'Duck'
+% 
+%     'Store_9'    'Store_5'    'Store_27'    'Store_27'    'Store_4'    'Store_12'    'Store_0'
+% 
+%    4.0005e+03
 
 % possibleStores = 
 % 

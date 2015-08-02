@@ -22,19 +22,35 @@ function [ velocity_new ] = Multiply( velocity, c )
 %Remove extra zeros
 velocity(any(velocity==0,2),:) = [];
 
-velocity_new = velocity;
+%velocity_new = velocity;
 [numVelocity, n] = size(velocity);
-if (numVelocity == 0 || n == 0)
+if (numVelocity < 3)
+    numVelocity = numVelocity - 1;
+end
+newSize = round(c*numVelocity);
+velocity_new = zeros(newSize,2);
+
+if (numVelocity <= 0 || n == 0)
     return
 end
 
 if (c == 0)
     velocity_new = [];
 elseif (c <= 1)
-    velocity_new(numVelocity,:) = [];
+    %velocity_new(numVelocity,:) = [];
+    for i = 1:newSize
+        velocity_new(i,:) = velocity(i,:);
+    end
 elseif (c > 1)
-    new_row = velocity(1,:);
-    velocity_new = [velocity_new; new_row];
+    %new_row = velocity(1,:);
+    for i = 1:newSize
+        index = mod(i, numVelocity);
+        if (index == 0)
+            index = numVelocity;
+        end
+        velocity_new(i,:) = velocity(index,:);
+    end
+    %velocity_new = [velocity_new; new_row];
 end
 
 end
