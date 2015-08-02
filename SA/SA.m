@@ -12,11 +12,6 @@ purchaseAmountMap('Stationery') = 1;
 purchaseAmountMap('MediumItem') = 5;
 
 
-%currentPurchaseArray = {'Chicken', 'Duck'};
-%purchaseAmountMap = containers.Map;
-%purchaseAmountMap('Duck') = 5;
-%purchaseAmountMap('Chicken') = 2;
-
 startLocation = 'Location_1';
 
 %Get files
@@ -28,7 +23,7 @@ numItems = size(currentPurchaseArray);
 %Standard SA params.
 boltzman = 1;
 initialTemp = 200; 
-maxNumRuns = 50000;
+maxNumRuns = 30000;
 alpha=0.9; % Cooling factor used is geometric, T = T * alpha
 temperature = initialTemp;
 
@@ -37,10 +32,10 @@ temperature = initialTemp;
 noIterImprovement = 0;
 numNoIterImprovementExit = 10000; %BREAK EARLY, WE ARE REALLY STUCK TRY AGAIN
 noIterImprovementReheat = 800;
-numNoIterImprovementSwap = 1500;
-numNoIterImprovementRandomStore = 500;
+numNoIterImprovementSwap = 1200;
+numNoIterImprovementRandomStore = 6000;
 
-reheatValue = 1.11;
+reheatValue = 1.05;
 reheatRunThreshold = maxNumRuns/2; %STOP REHEATING IF PAST THIS POINT!
 
     %Few iterations on initial temp, more on lower and lower temps
@@ -183,7 +178,7 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
         if deltaCost > reduceNeighbourhoodThreshold
             numSwapsToMake = max(1,numSwapsToMake - 1);
             numRandomStoreToMake = max(1,numRandomStoreToMake - 1);
-            disp('less swaps');
+            %disp('less swaps');
         end
         
     %Better than the current soln we have
@@ -195,7 +190,7 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
         if deltaCost > reduceNeighbourhoodThreshold
             numSwapsToMake = max(1,numSwapsToMake - 1);
             numRandomStoreToMake = max(1,numRandomStoreToMake - 1);
-            disp('less swaps');
+            %disp('less swaps');
         end
         
     else
@@ -218,16 +213,16 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
             
             %Revert the temp.
             numIterPerTempDecrease = numIterPerTempDecrease - numIterPertempDecreaseIncrement;
-            disp('reheat');
+            %disp('reheat');
         end
         
         if (mod(noIterImprovement,numNoIterImprovementSwap) == 0) 
-            disp('more swap');
+            %disp('more swap');
             numSwapsToMake = numSwapsToMake + 1;
         end
         
         if (mod(noIterImprovement,numNoIterImprovementRandomStore) == 0) 
-            disp('more random store');
+            %disp('more random store');
             numRandomStoreToMake = numRandomStoreToMake + 1;
         end
     end

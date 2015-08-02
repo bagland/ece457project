@@ -285,7 +285,7 @@ while (runNum < maxNumRuns)
         dataMap = beeArray{beeNum};
         
         if (dataMap('age') >= ageThreshold)
-            fprintf('Source %d is abandoned run num :%d\n', i, runNum);
+            %fprintf('Source %d is abandoned run num :%d\n', i, runNum);
             numAbandoned = numAbandoned + 1;
             dataMap = deepCopy(dataMap);
             %Generating an initial soln------------
