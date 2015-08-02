@@ -1,4 +1,4 @@
-function storePrice = parse_inventories( filename )
+function storePrice = parse_inventory( filename )
 %   This function returns a map
 %   Keys are product names
 %   Values are maps with key-value = {city:price}

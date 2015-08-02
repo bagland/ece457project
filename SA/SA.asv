@@ -1,8 +1,9 @@
 %Standard SA params.
 boltzman = 1;
-initialTemp = 0.8; % is percentage goal look later based on problem data size.
-maxNumRuns = 50000;
+initialTemp = 200; % we change this later. 
+maxNumRuns = 30000;
 alpha=0.9; % Cooling factor used is geometric, T = T * alpha
+temperature = initialTemp;
 
 %Other params.
     %Stagnation/stuck in local minimum
@@ -117,9 +118,7 @@ currentSolnCost = weightDist * distCost + weightPrice * priceCost;
 bestSolnCost = currentSolnCost;
 bestcurrentPurchaseArray = currentPurchaseArray;
 bestStoreList = currentStoreList;
-
-%initial temp was percentage goal.
-initialTemp = -log(initialTemp) * (bestSolnCost * 0.3); 
+initialTemp = -ln(0.8) * (bestSolnCost * 0.2); 
 temperature = initialTemp;
 %Stored current soln to compare against (we may have accepted a worse soln
 %than the best)
@@ -225,10 +224,10 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
     else
         %SA check probability of acceptance.
         chance = exp(-deltaCost/(boltzman*temperature));
-        %disp (runNum);
-        %disp(chance);
-        %disp(deltaCost);
-        %disp('\n');
+        disp (runNum);
+        disp(chance);
+        disp(deltaCost);
+        disp('\n');
         if chance>rand()
            %Accept when worse 
            iterSolnCost = currentSolnCost;

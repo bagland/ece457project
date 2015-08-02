@@ -14,6 +14,7 @@ function [ updated_price_pheromones, updated_dist_pheromones ] = updatePheromone
         
         [m, index] = ismember(storeName, storeNames);
         [m, prevIndex] = ismember(prevStoreName, storeNames);
+        updated_dist_pheromones(index, prevIndex) = updated_dist_pheromones(index, prevIndex) + bestFactor*Q_dist/(dist_cost);
         updated_dist_pheromones(prevIndex, index) = updated_dist_pheromones(prevIndex, index) + bestFactor*Q_dist/(dist_cost);
         updated_price_pheromones(prodIndex, index) = updated_price_pheromones(i-1, index) + bestFactor*Q_price/(price_cost);
     end

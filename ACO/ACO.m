@@ -1,32 +1,38 @@
 distances = parse_distances('outputDistance.txt');
-% currentPurchaseArray = {'Chicken','Duck', 'Apples', 'Oranges', 'VeryExpensiveItem'};
-currentPurchaseArray = {'Apples', 'Chicken', 'Oranges', 'Duck', 'VeryExpensiveItem', 'Stationery', 'MediumItem'};
+currentPurchaseArray = {'fish_fillet', 'astro_yogurt', 'boneless_pork_chop', 'shredded_cheese', 'juice', 'coffee', 'grape', 'post_cereal', 'pepsi', 'cheese_bar', 'pc_chicken_breast', 'entree', 'water', 'salsa', 'salad'};
 purchaseAmountMap = containers.Map;
-purchaseAmountMap('Apples') = 5;
-purchaseAmountMap('Chicken') = 1;
-purchaseAmountMap('Oranges') = 1;
-purchaseAmountMap('Duck') = 1;
-purchaseAmountMap('VeryExpensiveItem') = 5;
-purchaseAmountMap('Stationery') = 1;
-purchaseAmountMap('MediumItem') = 5;
-startLocation = 'Location_1';
+purchaseAmountMap('fish_fillet') = 5;
+purchaseAmountMap('astro_yogurt') = 10;
+purchaseAmountMap('boneless_pork_chop') = 1;
+purchaseAmountMap('shredded_cheese') = 1;
+purchaseAmountMap('juice') = 5;
+purchaseAmountMap('coffee') = 1;
+purchaseAmountMap('grape') = 1;
+purchaseAmountMap('post_cereal') = 1;
+purchaseAmountMap('pepsi') = 6;
+purchaseAmountMap('cheese_bar') = 1;
+purchaseAmountMap('pc_chicken_breast') = 1;
+purchaseAmountMap('entree') = 1;
+purchaseAmountMap('water') = 6;
+purchaseAmountMap('salsa') = 1;
+purchaseAmountMap('salad') = 2;
+startLocation = 'location_university_of_waterloo_1';
 
-
-
-%Get files
-distanceMap = parse_distances('outputDistance.txt');
-inventoryMap = parse_inventories('outputInventory.txt');
-storeNames = store_names('outputDistance.txt');
+%get values
+distanceMap = parse_distances('REAL_distances.txt');
+inventoryMap = parse_inventories('REAL_inventory.txt');
+storeNames = store_names('REAL_distances.txt');
+numItems = size(currentPurchaseArray);
 
 numStores = length(storeNames);
 numProducts = length(currentPurchaseArray);
 evaporation_rate = 0.1;
 
-maxIters = 3000;
+maxIters = 10000;
 alpha = 1;
 beta = 1;
 currentIter = 0;
-numAnts = 20;
+numAnts = 15;
 
 weightDist = 0.5;
 weightPrice = 1 - weightDist;
@@ -84,7 +90,9 @@ lastSolutions = zeros(1, 10);
 % Perm = randperm(length(currentPurchaseArray));
 % itemPurchaseArray = itemPurchaseArray(Perm);
 
-
+numIterationsWithoutChange = 0;
+parametersChanged = 0;
+improvedBestFactor = 1.5;
 % antsParameters = zeros(numAnts,
 while currentIter < maxIters
     bestFactor = 1;
@@ -133,31 +141,31 @@ while currentIter < maxIters
                 prev_store = stores_visited{store_iteration-1};
                 distancesFromPrevStore = distanceMap(prev_store);
                 distance = distancesFromPrevStore(index);
-%                 output = inRoute( antsRoute, i, key, products_index-2 );
-%                 if output == 1
-%                     distance = 1;
-%                 end
                 price_probabilities(probability_index) = (pricePheromone/str2double(price))/sumPrices;
                 distance_probabilities(probability_index) = (distancePheromones(prevCityIndex, index)/(str2double(distance)^beta))/sumDistances;
                 probability_index = probability_index + 1;
             end
             random_number = rand();
-%             price_probabilities
-%             distance_probabilities
             r = randi([0 1], 1, 1);
+            % if the global best is the same for 100 iterations
+            % do more explorations by not picking greedy solution
+            if numIterationsWithoutChange > 100 && parametersChanged < 5
+                parametersChanged = parametersChanged + 1;
+                rand_beta = rand();
+                % change beta to be in a range [0.5 1.5]
+                beta = 0.5 + 1*rand_beta;
+                % decrease evaporation rate -> encourage exploration
+                evaporation_rate = evaporation_rate - 0.01;
+                improvedBestFactor = improvedBestFactor + 0.5;
+                if evaporation_rate < 0
+                    evaporation_rate = 0.01;
+                end
+                numIterationsWithoutChange = 0;
+            end
+            
             
             price_dist_prob = price_probabilities.*distance_probabilities;
-%             price_index = PickFromProbabilities(price_probabilities, random_number, r);
-%             dist_index = PickFromProbabilities(distance_probabilities, random_number, r);
-            index_to_pick = PickFromProbabilities(price_dist_prob, random_number, r);;
-%             if price_index ~= dist_index
-%                 random_number = randi([1 2],1,1);
-%                 if random_number == 1
-%                     index_to_pick = price_index;
-%                 else
-%                     index_to_pick = dist_index;
-%                 end
-%             end
+            index_to_pick = PickFromProbabilities(price_dist_prob, random_number, r);
             storeName = storeKeys(index_to_pick);
             store_chosen = storeName{1};
             antsRoute{i, products_index + 1} = store_chosen;
@@ -167,9 +175,7 @@ while currentIter < maxIters
         end
         antsRoute{i, products_index + 1} = startLocation;
     end
-%     antsRoute{1, 2:numProducts}
-%     disp(antsRoute);
-%     antsRoute
+    
     for i = 1:numAnts
         route = getRouteForAnt( antsRoute, i, numProducts );
         
@@ -192,30 +198,31 @@ while currentIter < maxIters
             if currentSolnCost < bestSolutionTotal
                 bestSolutionTotal = currentSolnCost;
                 bestRouteTotal = route;
-                bestFactor = 1.5;
+                bestFactor = improvedBestFactor;
+                bestPurchaseArray = itemPurchaseArray;
+                numIterationsWithoutChange = 0;
             end
         end
     end
     antsSolutions(1, currentIter + 1) = bestSolnCost;
-%     bestRoute = getRouteForAnt( antsRoute, best_ant_index, numProducts);
-    
     [pricePheromones, distancePheromones] = updatePheromones( bestRoute, currentPurchaseArray, pricePheromones, distancePheromones, storeNames, currentPurchaseArray, numProducts, evaporation_rate, 10, 1, current_best_dist_cost, current_best_price_cost, bestFactor );
     currentIter = currentIter + 1;
+    numIterationsWithoutChange = numIterationsWithoutChange + 1;
     loopEndTime = cputime;
     loopTimeTaken = loopEndTime - loopStartTime;
     totalLoopTimeTaken = totalLoopTimeTaken + loopTimeTaken;
     if mod(currentIter, 10) == 0
         refreshdata;
-        plot([1:maxIters], antsSolutions(1, [1:maxIters]));
+        plot([1:currentIter], antsSolutions(1, [1:currentIter]));
         drawnow;
+    end
+    %converged stop
+    if numIterationsWithoutChange > 500
+        currentIter = maxIters;
     end
 end
 
 fprintf('It took %f seconds\n', totalLoopTimeTaken);
-disp(currentPurchaseArray);
+disp(bestPurchaseArray);
 disp(bestRouteTotal);
 disp(bestSolutionTotal);
-disp(pricePheromones);
-% disp(distancePheromones);
-% eventually most of unused paths are evaporated to 0
-% antsRoute
