@@ -28,7 +28,7 @@ storeNames = store_names('outputDistance.txt');
 numItems = size(currentPurchaseArray);
 
 %Initialize required TS params
-tabu_length = 5;
+tabu_length = 10;
 dim_store = size(storeNames,2);
 currentBestSol = inf;
 currentSolnCost = 0;
