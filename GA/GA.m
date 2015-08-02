@@ -1,54 +1,56 @@
-function [result] = GA()
-NumGen = 500;
-%pop size
-PopSize = 10;
+function [result, solution] = GA(pCross, NumGen, PopSize)
+%maximum number of generations
+%NumGen = 500;
+%pop size - should be at least 10
+%PopSize = 10;
 %probability of crossover/mutation
-pCross = 0.9;
+%pCross = 0.9;
 pMut = 1-pCross;
 %weight distribution of distance/price
 weightDist = 0.5;
 weightPrice = 1 - weightDist;
 
-%make up input, should put in file later
-numItems = 7;
-currentPurchaseArray = {'Apples', 'Chicken', 'Oranges', 'Duck', 'VeryExpensiveItem', 'Stationery', 'MediumItem'};
+%input
+numItems = 4;
+currentPurchaseArray = {'fish_fillet', 'astro_yogurt', 'boneless_pork_chop', 'shredded_cheese', 'juice', 'coffee', 'grape', 'post_cereal', 'pepsi', 'cheese_bar', 'pc_chicken_breast', 'entree', 'water', 'salsa', 'salad'};
 purchaseAmountMap = containers.Map;
-purchaseAmountMap('Apples') = 5;
-purchaseAmountMap('Chicken') = 1;
-purchaseAmountMap('Oranges') = 1;
-purchaseAmountMap('Duck') = 1;
-purchaseAmountMap('VeryExpensiveItem') = 5;
-purchaseAmountMap('Stationery') = 1;
-purchaseAmountMap('MediumItem') = 5;
-startLocation = 'Location_1';
+purchaseAmountMap('fish_fillet') = 5;
+purchaseAmountMap('astro_yogurt') = 10;
+purchaseAmountMap('boneless_pork_chop') = 1;
+purchaseAmountMap('shredded_cheese') = 1;
+purchaseAmountMap('juice') = 5;
+purchaseAmountMap('coffee') = 1;
+purchaseAmountMap('grape') = 1;
+purchaseAmountMap('post_cereal') = 1;
+purchaseAmountMap('pepsi') = 6;
+purchaseAmountMap('cheese_bar') = 1;
+purchaseAmountMap('pc_chicken_breast') = 1;
+purchaseAmountMap('entree') = 1;
+purchaseAmountMap('water') = 6;
+purchaseAmountMap('salsa') = 1;
+purchaseAmountMap('salad') = 2;
+startLocation = 'location_university_of_waterloo_1';
 
-distanceMap = parse_distances('outputDistance.txt');
-inventoryMap = parse_inventories('outputInventory.txt');
-storeNames = store_names('outputDistance.txt');
+%parse valueser
+distanceMap = parse_distances('REAL_distances.txt');
+inventoryMap = parse_inventories('REAL_inventory.txt');
+storeNames = store_names('REAL_distances.txt');
 numItems = size(currentPurchaseArray);
 
-%generate initial population
-%get list of all of the stores that contain the given required products
-  
-%percentage of population to get crossover
-GAPop = cell(PopSize);
-   
-%GENERATE POPULATION
+%GENERATE INITIAL POPULATION
 for i= 1:PopSize
     
     dataMap = containers.Map;
-    %Generating an initial soln------------
     storeList = cell(numItems);
     count = 0;
-    %Get Stores that sell the items we want.
     
     %Randomize buying order.
     itemPurchaseArray = currentPurchaseArray;
     Perm1 = randperm(length(currentPurchaseArray));
 	itemPurchaseArray = itemPurchaseArray(Perm1);
     
+    %Get Stores that sell the items we want for each item
     for itemName = itemPurchaseArray
-        %disp(itemName);
         itemCharName = itemName{1};
         storeItemMap = inventoryMap(itemCharName);
         storeKeys = keys(storeItemMap);
@@ -82,19 +84,41 @@ for i= 1:PopSize
     GAPop{i} = dataMap;
 end
 
-lastCost = 1000000000;
+%variables for adaptation
+lastCost = 1000000000;%arbitrarily large number
 noChange = 0;
 yesChange = 0;
 threshold = 5;
 quit = 0;
 i = 1;
+
+bestCost = 100000000000;
+for j=1:PopSize
+    popFitness(j) = GAPop{j}('bestSolnCost');
+    if popFitness(j)<bestCost
+        bestCost = popFitness(j);
+        bestSolution = GAPop{j};
+    end
+end
+
+solnXAxis = i;
+solnYAxis = bestCost;
+x = plot(solnXAxis, solnYAxis, 'YDataSource', 'solnYAxis', 'XDataSource', 'solnXAxis');
+
 %EVOLVE POPULATION
-while i < NumGen && quit == 0
+while i <= NumGen && quit == 0 
 
     tic; 
     [GAPop, average, bestCost] = evolve(GAPop,PopSize,purchaseAmountMap,inventoryMap,currentPurchaseArray, distanceMap, storeNames, numItems, pCross, pMut, weightDist, weightPrice);
-    stats(i,:) = [average, bestCost];
- 
+    solnXAxis = [solnXAxis i];
+    solnYAxis = [solnYAxis bestCost ];
+    if (mod(i, 10) == 0)
+       set (x, 'XData',solnXAxis, 'YData',  solnYAxis)
+       %refreshdata
+       drawnow
+    end    
+    stats(i,:) = [bestCost, average];
+    
     %ADAPT------------------------ 
     if lastCost == bestCost
          noChange = noChange + 1;
@@ -112,7 +136,7 @@ while i < NumGen && quit == 0
             threshold = threshold + 5; 
         else
             quit = 1;
-            disp(i);
+            %disp(i);
         end 
     elseif yesChange > 3 && pCross < 0.8
         pCross = pCross + 0.1;
@@ -137,11 +161,11 @@ for j=1:PopSize
     end
 end
 %disp(pCross);
-%disp(time);
+disp(mean(time));
 %BEST SOLUTION
 plot(stats);
 bestSolution = bestSolution2('bestSolnCost');
-bestRoute = bestSolution2('route');
+solution = bestSolution2;
 result = [bestSolution numIt];
 
 function new = copy(this)
@@ -157,6 +181,7 @@ new('bestPurchaseArray') = this('bestPurchaseArray');
 function [GAPop, average, bestCost] = evolve(GAPop,PopSize, purchaseAmountMap, inventoryMap, currentPurchaseArray, distanceMap, storeNames, numItems, pCross, pMut, weightDist, weightPrice)
 bestCost = 100000000000;
 worstCost = [0, 0]; %value, index
+%find best and worst solutions
 for j=1:PopSize
     popFitness(j) = GAPop{j}('bestSolnCost');
     if popFitness(j)<bestCost
@@ -171,6 +196,7 @@ end
 average = median(popFitness);
 bestFit = min(popFitness);
 
+%duplicate to remove passing by reference
 newSoln = copy(bestSolution);
 if worstCost(2) ~= PopSize
     GAPop{worstCost(2)} = GAPop{PopSize};
@@ -181,7 +207,7 @@ randomIndex = randperm(PopSize-1);
 index = 1;
 randomIndex2 = randi(numItems,1,PopSize);
 %CROSSOVER
-while index <= pCross*(PopSize-1)
+while index <= (pCross*(PopSize-1)-2)
     %get random part of the population
     First = GAPop{randomIndex(index)};
     Second = GAPop{randomIndex(index+1)};
@@ -237,6 +263,7 @@ randItemPerm = randperm(numItems(2));
 randItemPerm(numItems+1)=randItemPerm(1);
 
 for k = index:PopSize-1
+    %choose random stores to mutate 
     First = GAPop{randomIndex(k)};
     swapID1 = randomIndex2(index);
     swapItem1 = currentPurchaseArray(swapID1);
@@ -249,13 +276,14 @@ for k = index:PopSize-1
     swapItem2 = currentPurchaseArray(swapID2);
 
     FirstArray = First('bestPurchaseArray');
-    %get indices of items
     
+    %get random item to switch stores for
     switchID = rem(randItemPerm(swapID1)+index, numItems(2)) + 1;
     switchItem = currentPurchaseArray(switchID);
-    %disp(switchID);
-    l = 1;
+   
+    %get indices of items
     done = 0;
+    l = 1;
     while l<=numItems(2) && done<3
         if 1 == cellfun(@strcmp, FirstArray(l), swapItem1)
             firstindex = l;
@@ -274,6 +302,7 @@ for k = index:PopSize-1
     
     FirstStores = First('storeList');
     FirstRoute = First('route');
+    
     %switch bewteen store and other possible store
     %switch index is location of object in list
     storeItemMap = inventoryMap(switchItem{1});
@@ -281,9 +310,7 @@ for k = index:PopSize-1
     slot = randi(size(storeKeys,2));
     FirstStores{switchindex} = char(storeKeys{slot}); %Choose random store rather than first store.
        
-    %swap stores
-
-
+    %swap stores for indices
     FirstArray(secondindex) = swapItem1;
     FirstArray(firstindex) = swapItem2;
 
@@ -292,7 +319,6 @@ for k = index:PopSize-1
     FirstRoute(firstindex+1) = FirstStores(secondindex);
     FirstStores(secondindex) = swappedItem;
     FirstRoute(secondindex+1) = swappedItem;
-
 
     First('bestPurchaseArray') = FirstArray;
     First('storeList') = FirstStores;

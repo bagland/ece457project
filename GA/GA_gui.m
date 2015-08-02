@@ -115,7 +115,10 @@ function GA_button_Callback(hObject, eventdata, handles)
 	h = findobj('Tag','pop_size_slider');
 	pop_size = h.UserData;
     set(handles.plotdescription,'String','The best cost solution is shown in blue');
-    
+    set(handles.soln, 'String', ' ');
+    set(handles.solnitems, 'String', ' ');
+    set(handles.bestsoln,'String',' ');
+    set(handles.numit,'String',' ');
     [results, solution] = GA(crossover_rate, max_num_gen, pop_size);
     
     set(handles.bestsoln,'String',num2str(results(1)));
