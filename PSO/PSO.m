@@ -293,6 +293,14 @@ disp(gbest);
 % 
 %    4.0005e+03
 
+% Best soln in 2834 runs
+% Avg loop time 2.688366e-02 seconds, full time taken 7.618830e+01
+%     'Duck'    'Stationery'    'MediumItem'    'VeryExpensiveItem'    'Apples'    'Chicken'    'Oranges'
+% 
+%     'Store_15'    'Store_5'    'Store_27'    'Store_4'    'Store_27'    'Store_12'    'Store_23'
+% 
+%    4.0765e+03
+
 % possibleStores = 
 % 
 %     'Store_11'    'Store_16'    'Store_19'    'Store_27'    'Store_3'     'Store_4'            []
