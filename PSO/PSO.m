@@ -46,7 +46,7 @@ numItems = size(currentPurchaseArray);
 %Initial paramters
 numParticles = pop_size; %10;  %size of the swarm
 probDim = 2;    %unused, dimension of the problem
-maxIterations = max_num_iter; %5000;   %maximum number of iterations
+maxIterations = 100;%max_num_iter; %5000;   %maximum number of iterations
 swarmSize = 10; %unused
 neighbourhoodSize = 1;  %unused (whole swarm is a neighbourhood)
 c1 = accCoeff; %1.1; %acceleration coefficient - cognitive parameter
