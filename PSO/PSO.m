@@ -1,3 +1,4 @@
+function [result, solutionStore, solutionPurchase] = PSO(weight, accCoeff, max_num_iter, pop_size)
 
 %User shopping list and location.
 currentPurchaseArray = {'Apples', 'Chicken', 'Oranges', 'Duck', 'VeryExpensiveItem', 'Stationery', 'MediumItem'};
@@ -19,14 +20,14 @@ numStores = length(storeNames);
 numItems = size(currentPurchaseArray);
 
 %Initial paramters
-numParticles = 10;  %size of the swarm
+numParticles = pop_size; %10;  %size of the swarm
 probDim = 2;    %unused, dimension of the problem
-maxIterations = 5000;   %maximum number of iterations
+maxIterations = max_num_iter; %5000;   %maximum number of iterations
 swarmSize = 10; %unused
 neighbourhoodSize = 1;  %unused (whole swarm is a neighbourhood)
-c1 = 1.1; %acceleration coefficient - cognitive parameter
+c1 = accCoeff; %1.1; %acceleration coefficient - cognitive parameter
 c2 = 4-c1;  %acceleration coefficient - social parameter
-w = 0.6;  %inertia weight, used for adaptation
+w = weight; %0.6;  %inertia weight, used for adaptation
 
 %Other parameters
 noIterImprovement = 0;
@@ -118,11 +119,8 @@ bestStoreList = pbestStoreList(index,:);
 %Graphing
 solnXAxis = 0;
 solnYAxis = gbest;
-solnYAxis2 = gbest;
 
 thePlot = plot(solnXAxis, solnYAxis, 'YDataSource', 'solnYAxis', 'XDataSource', 'solnXAxis');
-hold on;
-thePlot2 = plot(solnXAxis, solnYAxis2, 'YDataSource', 'solnYAxis2', 'XDataSource', 'solnXAxis')
 
 %Iteration loop
 iter = 0;
@@ -228,8 +226,7 @@ while (iter < maxIterations && noIterImprovement < noIterImprovementExit)
     iter = iter + 1;
     
     solnXAxis = [solnXAxis iter];
-    solnYAxis = [solnYAxis min_iter];
-    solnYAxis2 = [solnYAxis2 gbest];
+    solnYAxis = [solnYAxis gbest];
 
     %Do not include graph draw time in the loop time
     loopTimeTaken = toc;
@@ -237,14 +234,16 @@ while (iter < maxIterations && noIterImprovement < noIterImprovementExit)
     
     %Graph update
     if (mod(iter, 10) == 0)
-       refreshdata(thePlot);
-       refreshdata(thePlot2);
+       set (thePlot, 'XData',solnXAxis, 'YData', solnYAxis);
+       %refreshdata(thePlot);
+       %refreshdata(thePlot2);
        drawnow
     end
+    stats(iter,:) = [gbest, min_iter];
 end
 
-refreshdata
-drawnow
+%refreshdata
+%drawnow
 
 avgLoopTimeTaken = totalLoopTimeTaken/iter;
 fprintf('Best soln in %d runs\n', iter);
@@ -252,7 +251,11 @@ fprintf('Avg loop time %d seconds, full time taken %d\n', avgLoopTimeTaken, tota
 disp(bestcurrentPurchaseArray);
 disp(bestStoreList);
 disp(gbest);
-
+plot(stats);
+result = [gbest iter];
+solutionStore = bestStoreList;
+solutionPurchase = bestcurrentPurchaseArray;
+end
 %Best soln in 1123 runs
 %Avg loop time 3.439914e-01 seconds, full time taken 3.863023e+02
 %    'VeryExpensiveItem'    'Chicken'    'Apples'    'Duck'    'Stationery'    'MediumItem'    'Oranges'
@@ -300,6 +303,14 @@ disp(gbest);
 %     'Store_15'    'Store_5'    'Store_27'    'Store_4'    'Store_27'    'Store_12'    'Store_23'
 % 
 %    4.0765e+03
+
+% Best soln in 3156 runs
+% Avg loop time 2.661960e-02 seconds, full time taken 8.401145e+01
+%     'MediumItem'    'Oranges'    'Stationery'    'Apples'    'Duck'    'Chicken'    'VeryExpensiveItem'
+% 
+%     'Store_9'    'Store_5'    'Store_5'    'Store_11'    'Store_5'    'Store_12'    'Store_0'
+% 
+%    3.9645e+03
 
 % possibleStores = 
 % 
