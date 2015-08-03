@@ -1,3 +1,5 @@
+Run BeeColony.m
+
 %Bee Colony parameters.
 maxNumRuns = 1000;  % Should probably keep small  1000 iterations is ~80 seconds  500 < n < 5000 
 ageThreshold = 5; % initial # of generations to hold a solution without changing  3 < n < 7

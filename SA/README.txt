@@ -1,3 +1,5 @@
+Run SA.m
+
 %Standard SA params.
 boltzman = 1; % should keep at 1, temperature is calibrated, so this doesn't do anything.
 initialTempFactor = 0.8; % between 0 and 1
