@@ -29,7 +29,6 @@ numProducts = length(currentPurchaseArray);
 evaporation_rate = 0.1;
 
 maxIters = 10000;
-alpha = 1;
 beta = 1;
 currentIter = 0;
 numAnts = 15;
