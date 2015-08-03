@@ -1,32 +1,33 @@
 %Standard SA params.
 boltzman = 1;
-initialTemp = 0.8; % is percentage goal look later based on problem data size.
-maxNumRuns = 50000;
+initialTempFactor = 0.8; % is percentage goal look later based on problem data size.
+maxNumRuns = 25000;
 alpha=0.9; % Cooling factor used is geometric, T = T * alpha
 
 %Other params.
     %Stagnation/stuck in local minimum
 noIterImprovement = 0;
 numNoIterImprovementExit = 10000; %BREAK EARLY, WE ARE REALLY STUCK TRY AGAIN
-noIterImprovementReheat = 800;
-numNoIterImprovementSwap = 1200;
-numNoIterImprovementRandomStore = 6000;
+noIterImprovementReheat = 500;
+numNoIterImprovementSwap = 800;
+numNoIterImprovementRandomStore = 600;
 
 reheatValue = 1.05;
 reheatRunThreshold = maxNumRuns/2; %STOP REHEATING IF PAST THIS POINT!
 
     %Few iterations on initial temp, more on lower and lower temps
 currTempIter = 0;
-numIterPerTempDecrease = 50;
-numIterPertempDecreaseIncrement = 50;
+numIterPerTempDecrease = 20;
+numIterPertempDecreaseIncrement = 20;
 
     %Neighbourhood operator probabilities
 numSuccessiveImprovement = 0;
-swapProbability = 0.85;
-numSwapsToMake = 5;
-randomStoreProbability = 0.85;
-numRandomStoreToMake = 5;
-reduceNeighbourhoodThreshold = 50; % If we have a big delta F from the best soln, we should decrease neighbourhood to intensify
+swapProbability = 0.99;
+numSwapsToMake = 2;
+randomStoreProbability = 0.3;
+numRandomStoreToMake = 3;
+maxRandomStore = 5;
+maxSwaps = 5;
 
 %Objective Fcn
 weightDist = 0.5;
@@ -34,18 +35,6 @@ weightPrice = 1 - weightDist;
 
 %User Input requirements, starting location + what they want to purchase
 % You need more than 2 items to swap.
-
-%currentPurchaseArray = {'Apples', 'Chicken', 'Oranges', 'Duck', 'VeryExpensiveItem', 'Stationery', 'MediumItem'};
-%purchaseAmountMap = containers.Map;
-%purchaseAmountMap('Apples') = 5;
-%purchaseAmountMap('Chicken') = 1;
-%purchaseAmountMap('Oranges') = 1;
-%purchaseAmountMap('Duck') = 1;
-%purchaseAmountMap('VeryExpensiveItem') = 5;
-%purchaseAmountMap('Stationery') = 1;
-%purchaseAmountMap('MediumItem') = 5;
-%startLocation = 'Location_1';
-
 currentPurchaseArray = {'fish_fillet', 'astro_yogurt', 'boneless_pork_chop', 'shredded_cheese', 'juice', 'coffee', 'grape', 'post_cereal', 'pepsi', 'cheese_bar', 'pc_chicken_breast', 'entree', 'water', 'salsa', 'salad'};
 purchaseAmountMap = containers.Map;
 purchaseAmountMap('fish_fillet') = 5;
@@ -65,18 +54,10 @@ purchaseAmountMap('salsa') = 1;
 purchaseAmountMap('salad') = 2;
 startLocation = 'location_university_of_waterloo_1';
 
-
-
-
-
-
-%Get files
+%get values
 distanceMap = parse_distances('REAL_distances.txt');
-inventoryMap = parse_inventory('REAL_inventory.txt');
+inventoryMap = parse_inventories('REAL_inventory.txt');
 storeNames = store_names('REAL_distances.txt');
-%distanceMap = parse_distances('outputDistance.txt');
-%inventoryMap = parse_inventory('outputInventory.txt');
-%storeNames = store_names('outputDistance.txt');
 numItems = size(currentPurchaseArray);
 
 
@@ -84,6 +65,11 @@ numItems = size(currentPurchaseArray);
 %Generating an initial soln------------
 storeList = cell(numItems);
 count = 0;
+
+
+Perm1 = randperm(length(currentPurchaseArray));
+currentPurchaseArray = currentPurchaseArray(Perm1);
+
 %Get Stores that sell the items we want.
 for itemName = currentPurchaseArray
     itemCharName = itemName{1};
@@ -117,10 +103,14 @@ currentSolnCost = weightDist * distCost + weightPrice * priceCost;
 bestSolnCost = currentSolnCost;
 bestcurrentPurchaseArray = currentPurchaseArray;
 bestStoreList = currentStoreList;
+bestStoreRoute = midRoute;
 
 %initial temp was percentage goal.
-initialTemp = -log(initialTemp) * (bestSolnCost * 0.3); 
+initialTemp =  -(bestSolnCost * 0.1) / log(initialTempFactor) ; 
 temperature = initialTemp;
+reduceNeighbourhoodThreshold = bestSolnCost * 0.1; % If we have a big delta F from the best soln, we should decrease neighbourhood to intensify
+
+
 %Stored current soln to compare against (we may have accepted a worse soln
 %than the best)
 iterSolnCost = currentSolnCost;
@@ -199,6 +189,8 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
         bestSolnCost = currentSolnCost;
         bestcurrentPurchaseArray = currentPurchaseArray;
         bestStoreList = currentStoreList;
+        bestStoreRoute = midRoute;
+        
         iterSolnCost = currentSolnCost;
         itercurrentPurchaseArray = currentPurchaseArray;
         iterStoreList = currentStoreList;
@@ -207,7 +199,7 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
         if deltaCost > reduceNeighbourhoodThreshold
             numSwapsToMake = max(1,numSwapsToMake - 1);
             numRandomStoreToMake = max(1,numRandomStoreToMake - 1);
-            %disp('less swaps');
+            disp('less swaps');
         end
         
     %Better than the current soln we have
@@ -219,7 +211,7 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
         if deltaCost > reduceNeighbourhoodThreshold
             numSwapsToMake = max(1,numSwapsToMake - 1);
             numRandomStoreToMake = max(1,numRandomStoreToMake - 1);
-            %disp('less swaps');
+            disp('less swaps');
         end
         
     else
@@ -240,26 +232,24 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
         if (mod(noIterImprovement,noIterImprovementReheat) == 0 && runNum < reheatRunThreshold) 
             temperature = temperature * reheatValue;
             
-            %Revert the temp.
-            numIterPerTempDecrease = numIterPerTempDecrease - numIterPertempDecreaseIncrement;
-            %disp('reheat');
+            disp('reheat');
         end
         
         if (mod(noIterImprovement,numNoIterImprovementSwap) == 0) 
-            %disp('more swap');
-            numSwapsToMake = numSwapsToMake + 1;
+            disp('more swap');
+            numSwapsToMake = min(numSwapsToMake + 1, maxSwaps);
         end
         
         if (mod(noIterImprovement,numNoIterImprovementRandomStore) == 0) 
-            %disp('more random store');
-            numRandomStoreToMake = numRandomStoreToMake + 1;
+            disp('more random store');
+            numRandomStoreToMake = min(numRandomStoreToMake + 1, maxRandomStore);
         end
     end
     %cooldown
     %Can change this too.
     currTempIter = currTempIter + 1;
     if (currTempIter >= numIterPerTempDecrease)
-        numIterPerTempDecrease = numIterPerTempDecrease + numIterPertempDecreaseIncrement; 
+        numIterPerTempDecrease = numIterPerTempDecrease + numIterPertempDecreaseIncrement;
         currTempIter = 0;
         temperature = temperature * alpha;
     end
@@ -289,5 +279,5 @@ avgLoopTimeTaken = totalLoopTimeTaken/runNum;
 fprintf('Best soln in %d runs\n', runNum);
 fprintf('Avg loop time %d seconds, full time taken %d\n', avgLoopTimeTaken, totalLoopTimeTaken);
 disp(bestcurrentPurchaseArray);
-disp(bestStoreList);
+disp(bestStoreRoute);
 disp(bestSolnCost);

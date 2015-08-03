@@ -21,16 +21,6 @@ weightPrice = 1 - weightDist;
 %User Input requirements, starting location + what they want to purchase
 % You need more than 2 items to swap.
 
-%currentPurchaseArray = {'Apples', 'Chicken', 'Oranges', 'Duck', 'VeryExpensiveItem', 'Stationery', 'MediumItem'};
-%purchaseAmountMap = containers.Map;
-%purchaseAmountMap('Apples') = 5;
-%purchaseAmountMap('Chicken') = 1;
-%purchaseAmountMap('Oranges') = 1;
-%purchaseAmountMap('Duck') = 1;
-%purchaseAmountMap('VeryExpensiveItem') = 5;
-%purchaseAmountMap('Stationery') = 1;
-%purchaseAmountMap('MediumItem') = 5;
-%startLocation = 'Location_1';
 
 currentPurchaseArray = {'fish_fillet', 'astro_yogurt', 'boneless_pork_chop', 'shredded_cheese', 'juice', 'coffee', 'grape', 'post_cereal', 'pepsi', 'cheese_bar', 'pc_chicken_breast', 'entree', 'water', 'salsa', 'salad'};
 purchaseAmountMap = containers.Map;
@@ -58,11 +48,8 @@ startLocation = 'location_university_of_waterloo_1';
 
 %Get files
 distanceMap = parse_distances('REAL_distances.txt');
-inventoryMap = parse_inventory('REAL_inventory.txt');
+inventoryMap = parse_inventories('REAL_inventory.txt');
 storeNames = store_names('REAL_distances.txt');
-%distanceMap = parse_distances('outputDistance.txt');
-%inventoryMap = parse_inventory('outputInventory.txt');
-%storeNames = store_names('outputDistance.txt');
 numItems = size(currentPurchaseArray);
 
 %Setup stuff.
