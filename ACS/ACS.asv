@@ -95,8 +95,7 @@ numIterationsWithoutChange = 0;
 parametersChanged = 0;
 improvedBestFactor = 1.5;
 % antsParameters = zeros(numAnts,
-quit = 0;
-while currentIter < maxIters && quit == 0
+while currentIter < maxIters
     bestFactor = 1;
     loopStartTime = cputime;
 %     set initial cost to a big number
@@ -149,9 +148,9 @@ while currentIter < maxIters && quit == 0
             end
             random_number = rand();
             r = randi([0 1], 1, 1);
-            % if the global best is the same for 50 iterations
+            % if the global best is the same for 100 iterations
             % do more explorations by not picking greedy solution
-            if numIterationsWithoutChange > 50 && parametersChanged < 5
+            if numIterationsWithoutChange > 100 && parametersChanged < 5
                 parametersChanged = parametersChanged + 1;
                 rand_beta = rand();
                 % change beta to be in a range [0.5 1.5]
@@ -225,9 +224,7 @@ while currentIter < maxIters && quit == 0
 end
 
 %fprintf('It took %f seconds\n', totalLoopTimeTaken);
-results = [bestSolutionTotal currentIter];
-route = bestRouteTotal;
-items = bestPurchaseArray;
-%disp(bestPurchaseArray);
-%disp(bestRouteTotal);
-%disp(bestSolutionTotal);
+results = [
+disp(bestPurchaseArray);
+disp(bestRouteTotal);
+disp(bestSolutionTotal);
