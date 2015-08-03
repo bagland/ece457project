@@ -22,9 +22,9 @@ numIterPertempDecreaseIncrement = 20;
 
     %Neighbourhood operator probabilities
 numSuccessiveImprovement = 0;
-swapProbability = 0.99;
+swapProbability = 0.85;
 numSwapsToMake = 2;
-randomStoreProbability = 0.3;
+randomStoreProbability = 0.5;
 numRandomStoreToMake = 3;
 maxRandomStore = 5;
 maxSwaps = 5;
@@ -199,7 +199,7 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
         if deltaCost > reduceNeighbourhoodThreshold
             numSwapsToMake = max(1,numSwapsToMake - 1);
             numRandomStoreToMake = max(1,numRandomStoreToMake - 1);
-            disp('less swaps');
+            %disp('less swaps');
         end
         
     %Better than the current soln we have
@@ -211,7 +211,7 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
         if deltaCost > reduceNeighbourhoodThreshold
             numSwapsToMake = max(1,numSwapsToMake - 1);
             numRandomStoreToMake = max(1,numRandomStoreToMake - 1);
-            disp('less swaps');
+            %disp('less swaps');
         end
         
     else
@@ -232,16 +232,16 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
         if (mod(noIterImprovement,noIterImprovementReheat) == 0 && runNum < reheatRunThreshold) 
             temperature = temperature * reheatValue;
             
-            disp('reheat');
+            %disp('reheat');
         end
         
         if (mod(noIterImprovement,numNoIterImprovementSwap) == 0) 
-            disp('more swap');
+            %disp('more swap');
             numSwapsToMake = min(numSwapsToMake + 1, maxSwaps);
         end
         
         if (mod(noIterImprovement,numNoIterImprovementRandomStore) == 0) 
-            disp('more random store');
+            %disp('more random store');
             numRandomStoreToMake = min(numRandomStoreToMake + 1, maxRandomStore);
         end
     end
