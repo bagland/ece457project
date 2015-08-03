@@ -36,7 +36,7 @@ startLocation = 'location_university_of_waterloo_1';
 %Get files
 % distanceMap = parse_distances('outputDistance.txt');
 % inventoryMap = parse_inventories('outputInventory.txt');
-% storeNames = store_names('REAL_distances.txt');
+% storeNames = store_names('outputDistance.txt');
 distanceMap = parse_distances('REAL_distances.txt');
 inventoryMap = parse_inventories('REAL_inventory.txt');
 storeNames = store_names('REAL_distances.txt');
@@ -255,7 +255,7 @@ while (iter < maxIterations && noIterImprovement < noIterImprovementExit)
     %Do not include graph draw time in the loop time
     loopTimeTaken = toc;
     totalLoopTimeTaken = totalLoopTimeTaken + loopTimeTaken;
-    loopTimeTaken
+
     %Graph update
     if (mod(iter, 10) == 0)
        set (thePlot, 'XData',solnXAxis, 'YData', solnYAxis);
@@ -264,6 +264,7 @@ while (iter < maxIterations && noIterImprovement < noIterImprovementExit)
        drawnow
     end
     stats(iter,:) = [gbest, min_iter];
+
 end
 
 %refreshdata
@@ -367,6 +368,34 @@ end
 %     'store_food_basics_2'    'store_zehrs_3'
 % 
 %        13719
+
+% Best soln in 3726 runs
+% Avg loop time 6.188752e-02 seconds, full time taken 2.305929e+02
+%   Columns 1 through 7
+% 
+%     'shredded_cheese'    'coffee'    'water'    'pc_chicken_breast'    'grape'    'post_cereal'    'juice'
+% 
+%   Columns 8 through 14
+% 
+%     'salsa'    'fish_fillet'    'astro_yogurt'    'entree'    'cheese_bar'    'pepsi'    'salad'
+% 
+%   Column 15
+% 
+%     'boneless_pork_chop'
+% 
+%   Columns 1 through 5
+% 
+%     'store_zehrs_3'    'store_zehrs_3'    'store_food_basics_2'    'store_zehrs_3'    'store_food_basics_2'
+% 
+%   Columns 6 through 10
+% 
+%     'store_zehrs_3'    'store_giant_tiger_1'    'store_sobeys_1'    'store_sobeys_1'    'store_giant_tiger_1'
+% 
+%   Columns 11 through 15
+% 
+%     'store_food_basics_2'    'store_valu_mart_1'    'store_valu_mart_1'    'store_zehrs_3'    'store_zehrs_3'
+% 
+%    1.2386e+04
 
 % possibleStores = 
 % 
