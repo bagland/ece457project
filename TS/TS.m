@@ -6,25 +6,34 @@
 	Tabu length- adaptive approach
 %}
 
-%shopping list
-currentPurchaseArray = {'Apples', 'Chicken', 'Oranges', 'Duck', 'VeryExpensiveItem', 'Stationery', 'MediumItem'};
+currentPurchaseArray = {'fish_fillet', 'astro_yogurt', 'boneless_pork_chop', 'shredded_cheese', 'juice', 'coffee', 'grape', 'post_cereal', 'pepsi', 'cheese_bar', 'pc_chicken_breast', 'entree', 'water', 'salsa', 'salad'};
 purchaseAmountMap = containers.Map;
-purchaseAmountMap('Apples') = 5;
-purchaseAmountMap('Chicken') = 1;
-purchaseAmountMap('Oranges') = 1;
-purchaseAmountMap('Duck') = 1;
-purchaseAmountMap('VeryExpensiveItem') = 5;
-purchaseAmountMap('Stationery') = 1;
-purchaseAmountMap('MediumItem') = 5;
+purchaseAmountMap('fish_fillet') = 5;
+purchaseAmountMap('astro_yogurt') = 10;
+purchaseAmountMap('boneless_pork_chop') = 1;
+purchaseAmountMap('shredded_cheese') = 1;
+purchaseAmountMap('juice') = 5;
+purchaseAmountMap('coffee') = 1;
+purchaseAmountMap('grape') = 1;
+purchaseAmountMap('post_cereal') = 1;
+purchaseAmountMap('pepsi') = 6;
+purchaseAmountMap('cheese_bar') = 1;
+purchaseAmountMap('pc_chicken_breast') = 1;
+purchaseAmountMap('entree') = 1;
+purchaseAmountMap('water') = 6;
+purchaseAmountMap('salsa') = 1;
+purchaseAmountMap('salad') = 2;
+startLocation = 'location_university_of_waterloo_1';
 
 
-% pick the starting location
-startLocation = 'Location_1';
+
+
+
 
 %Get files
-distanceMap = parse_distances('outputDistance.txt');
-inventoryMap = parse_inventory('outputInventory.txt');
-storeNames = store_names('outputDistance.txt');
+distanceMap = parse_distances('REAL_distances.txt');
+inventoryMap = parse_inventories('REAL_inventory.txt');
+storeNames = store_names('REAL_distances.txt');
 numItems = size(currentPurchaseArray);
 
 %Initialize required TS params
@@ -82,7 +91,7 @@ iterSolnCost = currentSolnCost;
 itercurrentPurchaseArray = currentPurchaseArray;
 iterStoreList = currentStoreList;
 
-maxNumRuns = 50;
+maxNumRuns = 1000;
 runNum = 0;
 totalLoopTimeTaken = 0;
 % main search loop
