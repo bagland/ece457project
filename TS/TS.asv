@@ -5,7 +5,7 @@
 	Aspiration: willing to accept tabu solution iff solution is better than best overall solution so far
 	Tabu length- adaptive approach
 %}
-function [results, route, items] = TS(maxNumRuns, tabu_length)
+function [results, route, items] = TS(evaporation_rate, max, beta)
 
 currentPurchaseArray = {'fish_fillet', 'astro_yogurt', 'boneless_pork_chop', 'shredded_cheese', 'juice', 'coffee', 'grape', 'post_cereal', 'pepsi', 'cheese_bar', 'pc_chicken_breast', 'entree', 'water', 'salsa', 'salad'};
 purchaseAmountMap = containers.Map;
@@ -26,6 +26,11 @@ purchaseAmountMap('salsa') = 1;
 purchaseAmountMap('salad') = 2;
 startLocation = 'location_university_of_waterloo_1';
 
+
+
+
+
+
 %Get files
 distanceMap = parse_distances('REAL_distances.txt');
 inventoryMap = parse_inventories('REAL_inventory.txt');
@@ -33,7 +38,7 @@ storeNames = store_names('REAL_distances.txt');
 numItems = size(currentPurchaseArray);
 
 %Initialize required TS params
-%tabu_length = 10;
+tabu_length = 10;
 dim_store = size(storeNames,2);
 currentBestSol = inf;
 currentSolnCost = 0;
@@ -87,14 +92,9 @@ iterSolnCost = currentSolnCost;
 itercurrentPurchaseArray = currentPurchaseArray;
 iterStoreList = currentStoreList;
 
-%maxNumRuns = 1000;
+maxNumRuns = 1000;
 runNum = 0;
 totalLoopTimeTaken = 0;
-
-solnXAxis = runNum;
-solnYAxis = currentSolnCost;
-x = plot(solnXAxis, solnYAxis, 'YDataSource', 'solnYAxis', 'XDataSource', 'solnXAxis');
-
 % main search loop
 while (runNum < maxNumRuns)
     
@@ -234,14 +234,10 @@ while (runNum < maxNumRuns)
     %DO NOT INCLUDE GRAPH DRAW TIME IN LOOP TIME
     loopTimeTaken = toc;
     totalLoopTimeTaken = totalLoopTimeTaken + loopTimeTaken;
-    solnXAxis = [solnXAxis runNum];
-    solnYAxis = [solnYAxis currentBestSol ];
-    if (mod(runNum, 5) == 0)
-       set (x, 'XData',solnXAxis, 'YData',  solnYAxis)
-       %refreshdata
-       drawnow
-    end    
+    
 end
+
+
 
 %avgLoopTimeTaken = totalLoopTimeTaken/runNum;
 %fprintf('Best soln in %d runs\n', runNum);
@@ -249,6 +245,3 @@ end
 %disp(bestcurrentPurchaseArray);
 %disp(bestStoreList);
 %disp(bestSolnCost);
-results = [bestSolnCost runNum];
-route = bestStoreList;
-items = bestcurrentPurchaseArray;
