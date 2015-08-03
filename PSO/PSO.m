@@ -1,21 +1,45 @@
 function [result, solutionStore, solutionPurchase] = PSO(weight, accCoeff, max_num_iter, pop_size)
 
 %User shopping list and location.
-currentPurchaseArray = {'Apples', 'Chicken', 'Oranges', 'Duck', 'VeryExpensiveItem', 'Stationery', 'MediumItem'};
+%Random data shopping list
+% currentPurchaseArray = {'Apples', 'Chicken', 'Oranges', 'Duck', 'VeryExpensiveItem', 'Stationery', 'MediumItem'};
+% purchaseAmountMap = containers.Map;
+% purchaseAmountMap('Apples') = 5;
+% purchaseAmountMap('Chicken') = 1;
+% purchaseAmountMap('Oranges') = 1;
+% purchaseAmountMap('Duck') = 1;
+% purchaseAmountMap('VeryExpensiveItem') = 5;
+% purchaseAmountMap('Stationery') = 1;
+% purchaseAmountMap('MediumItem') = 5;
+% startLocation = 'Location_1';
+
+%Real data shopping list
+currentPurchaseArray = {'fish_fillet', 'astro_yogurt', 'boneless_pork_chop', 'shredded_cheese', 'juice', 'coffee', 'grape', 'post_cereal', 'pepsi', 'cheese_bar', 'pc_chicken_breast', 'entree', 'water', 'salsa', 'salad'};
 purchaseAmountMap = containers.Map;
-purchaseAmountMap('Apples') = 5;
-purchaseAmountMap('Chicken') = 1;
-purchaseAmountMap('Oranges') = 1;
-purchaseAmountMap('Duck') = 1;
-purchaseAmountMap('VeryExpensiveItem') = 5;
-purchaseAmountMap('Stationery') = 1;
-purchaseAmountMap('MediumItem') = 5;
-startLocation = 'Location_1';
+purchaseAmountMap('fish_fillet') = 5;
+purchaseAmountMap('astro_yogurt') = 10;
+purchaseAmountMap('boneless_pork_chop') = 1;
+purchaseAmountMap('shredded_cheese') = 1;
+purchaseAmountMap('juice') = 5;
+purchaseAmountMap('coffee') = 1;
+purchaseAmountMap('grape') = 1;
+purchaseAmountMap('post_cereal') = 1;
+purchaseAmountMap('pepsi') = 6;
+purchaseAmountMap('cheese_bar') = 1;
+purchaseAmountMap('pc_chicken_breast') = 1;
+purchaseAmountMap('entree') = 1;
+purchaseAmountMap('water') = 6;
+purchaseAmountMap('salsa') = 1;
+purchaseAmountMap('salad') = 2;
+startLocation = 'location_university_of_waterloo_1';
 
 %Get files
-distanceMap = parse_distances('outputDistance.txt');
-inventoryMap = parse_inventories('outputInventory.txt');
-storeNames = store_names('outputDistance.txt');
+% distanceMap = parse_distances('outputDistance.txt');
+% inventoryMap = parse_inventories('outputInventory.txt');
+% storeNames = store_names('REAL_distances.txt');
+distanceMap = parse_distances('REAL_distances.txt');
+inventoryMap = parse_inventories('REAL_inventory.txt');
+storeNames = store_names('REAL_distances.txt');
 numStores = length(storeNames);
 numItems = size(currentPurchaseArray);
 
@@ -231,7 +255,7 @@ while (iter < maxIterations && noIterImprovement < noIterImprovementExit)
     %Do not include graph draw time in the loop time
     loopTimeTaken = toc;
     totalLoopTimeTaken = totalLoopTimeTaken + loopTimeTaken;
-    
+    loopTimeTaken
     %Graph update
     if (mod(iter, 10) == 0)
        set (thePlot, 'XData',solnXAxis, 'YData', solnYAxis);
@@ -311,6 +335,38 @@ end
 %     'Store_9'    'Store_5'    'Store_5'    'Store_11'    'Store_5'    'Store_12'    'Store_0'
 % 
 %    3.9645e+03
+
+% Best soln in 3163 runs
+% Avg loop time 6.163827e-02 seconds, full time taken 1.949619e+02
+%   Columns 1 through 8
+% 
+%     'salad'    'salsa'    'juice'    'astro_yogurt'    'cheese_bar'    'entree'    'pepsi'    'grape'
+% 
+%   Columns 9 through 14
+% 
+%     'post_cereal'    'coffee'    'fish_fillet'    'pc_chicken_breast'    'boneless_pork_chop'    'water'
+% 
+%   Column 15
+% 
+%     'shredded_cheese'
+% 
+%   Columns 1 through 5
+% 
+%     'store_zehrs_2'    'store_zehrs_2'    'store_giant_tiger_1'    'store_giant_tiger_1'    'store_valu_mart_1'
+% 
+%   Columns 6 through 9
+% 
+%     'store_food_basics_2'    'store_giant_tiger_1'    'store_food_basics_2'    'store_giant_tiger_1'
+% 
+%   Columns 10 through 13
+% 
+%     'store_food_basics_2'    'store_giant_tiger_1'    'store_zehrs_3'    'store_zehrs_2'
+% 
+%   Columns 14 through 15
+% 
+%     'store_food_basics_2'    'store_zehrs_3'
+% 
+%        13719
 
 % possibleStores = 
 % 
