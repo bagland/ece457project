@@ -21,7 +21,6 @@ numIterPerTempDecrease = 20;
 numIterPertempDecreaseIncrement = 20;
 
     %Neighbourhood operator probabilities
-numSuccessiveImprovement = 0;
 swapProbability = 0.85;
 numSwapsToMake = 2;
 randomStoreProbability = 0.5;
