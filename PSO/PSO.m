@@ -277,7 +277,7 @@ disp(bestcurrentPurchaseArray);
 disp(bestStoreList);
 disp(gbest);
 plot(stats);
-result = [gbest iter];
+result = [gbest iter avgLoopTimeTaken];
 solutionStore = bestStoreList;
 solutionPurchase = bestcurrentPurchaseArray;
 end

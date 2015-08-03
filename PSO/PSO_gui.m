@@ -102,6 +102,7 @@ function PSO_button_Callback(hObject, eventdata, handles)
     
     set(handles.bestsoln,'String',num2str(results(1)));
     set(handles.numit,'String',num2str(results(2)));
+    set(handles.timePerIt, 'String', num2str(results(3)));
     set(handles.plotdescription,'String','The best cost solution is shown in blue while the minimum solution for each iteration is shown in red');
     set(handles.errormessage,'String',' ');
     
