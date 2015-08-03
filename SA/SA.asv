@@ -121,9 +121,9 @@ iterStoreList = currentStoreList;
 %Graphing
 solnXAxis = 0;
 solnYAxis = iterSolnCost;
-thePlot = plot(solnXAxis, solnYAxis, 'YDataSource', 'solnYAxis', 'XDataSource', 'solnXAxis');
-%set(thePlot,'XDataSource', 'solnXAxis');
-%set(thePlot,'YDataSource', 'solnYAxis');
+thePlot = plot(solnXAxis, solnYAxis);
+set(thePlot,'XDataSource', 'solnXAxis');
+set(thePlot,'YDataSource', 'solnYAxis');
 %linkdata on
 
 
@@ -266,19 +266,22 @@ while (runNum < maxNumRuns && noIterImprovement < numNoIterImprovementExit)
     
     %Graph update
     if (mod(runNum,200) == 0)
-        set(thePlot, 'XData', solnXAxis, 'YData', solnYAxis);
-        %refreshdata
-        drawnow;
+        refreshdata
+        drawnow
     end
     
 end
 
-%avgLoopTimeTaken = totalLoopTimeTaken/runNum;
-%fprintf('Best soln in %d runs\n', runNum);
-%fprintf('Avg loop time %d seconds, full time taken %d\n', avgLoopTimeTaken, totalLoopTimeTaken);
-%disp(bestcurrentPurchaseArray);
-%disp(bestStoreRoute);
-%disp(bestSolnCost);
+refreshdata
+drawnow
+%linkdata off;
+
+avgLoopTimeTaken = totalLoopTimeTaken/runNum;
+fprintf('Best soln in %d runs\n', runNum);
+fprintf('Avg loop time %d seconds, full time taken %d\n', avgLoopTimeTaken, totalLoopTimeTaken);
+disp(bestcurrentPurchaseArray);
+disp(bestStoreRoute);
+disp(bestSolnCost);
 results(1) = bestSolnCost;
 results(2) = runNum;
 route = bestStoreRoute;
