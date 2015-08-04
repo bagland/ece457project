@@ -278,7 +278,7 @@ disp(bestStoreList);
 disp(gbest);
 plot(stats);
 result = [gbest iter avgLoopTimeTaken];
-solutionStore = bestStoreList;
+solutionStore = [startLocation bestStoreList startLocation];
 solutionPurchase = bestcurrentPurchaseArray;
 end
 %Best soln in 1123 runs
