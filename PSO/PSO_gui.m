@@ -101,7 +101,7 @@ function PSO_button_Callback(hObject, eventdata, handles)
     set(handles.timePerIt,'String',' ');
     [results, solutionStore, solutionItems] = PSO(weight, accCoeff, max_num_iter, pop_size);
     
-    set(handles.bestsoln,'String',strcat('$', num2str( round(results(1)/100, 2) )));
+    set(handles.bestsoln,'String',num2str(results(1)));
     set(handles.numit,'String',num2str(results(2)));
     set(handles.timePerIt, 'String', strcat(num2str(results(3)), 's'));
     set(handles.plotdescription,'String','The best cost solution is shown in blue while the minimum solution for each iteration is shown in red');
