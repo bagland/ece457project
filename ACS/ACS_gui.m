@@ -22,7 +22,7 @@ function varargout = ACS_gui(varargin)
 
 % Edit the above text to modify the response to help ACS_gui
 
-% Last Modified by GUIDE v2.5 03-Aug-2015 18:37:02
+% Last Modified by GUIDE v2.5 03-Aug-2015 21:07:33
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -114,6 +114,8 @@ function ACS_button_Callback(hObject, eventdata, handles)
 	num_ants = h.UserData;
 	h = findobj('Tag','evap_rate_slider');
 	evap_rate = h.UserData;
+    h = findobj('Tag','max_gen_slider');
+	max_gen = h.UserData;
     set(handles.plotdescription,'String','The best cost solution for each generation is shown in blue');
     set(handles.soln, 'String', ' ');
     set(handles.solnitems, 'String', ' ');
@@ -121,7 +123,7 @@ function ACS_button_Callback(hObject, eventdata, handles)
     set(handles.numit,'String',' ');
     set(handles.errormessage, 'String', 'Running... ');
 
-    [results, route, items] = ACS(evap_rate, num_ants, beta_rate);
+    [results, route, items] = ACS(evap_rate, num_ants, beta_rate, max_gen);
     
     set(handles.bestsoln,'String',num2str(results(1)));
     set(handles.numit,'String',num2str(results(2)));
@@ -167,7 +169,7 @@ function num_ants_slider_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 val = floor(get(hObject,'Value'));   
 set(hObject,'UserData',val); 
-set(handles.genval,'String',num2str(val));
+set(handles.antsval,'String',num2str(val));
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
@@ -288,8 +290,8 @@ end
 
 
 
-function genval_Callback(hObject, eventdata, handles)
-% hObject    handle to genval (see GCBO)
+function antsval_Callback(hObject, eventdata, handles)
+% hObject    handle to antsval (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 valstr = get(hObject,'String');  
@@ -315,13 +317,13 @@ else
 	set(hObject,'String', num2str(val));
 end 
 
-% Hints: get(hObject,'String') returns contents of genval as text
-%        str2double(get(hObject,'String')) returns contents of genval as a double
+% Hints: get(hObject,'String') returns contents of antsval as text
+%        str2double(get(hObject,'String')) returns contents of antsval as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function genval_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to genval (see GCBO)
+function antsval_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to antsval (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -330,6 +332,8 @@ function genval_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
 
 
 
@@ -362,9 +366,89 @@ else
 	set(hObject,'String', num2str(val));
 end 
 
+
+
 % --- Executes during object creation, after setting all properties.
 function alphaval_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to alphaval (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on slider movement.
+function max_gen_slider_Callback(hObject, eventdata, handles)
+% hObject    handle to max_gen_slider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+val = floor(get(hObject,'Value'));   
+set(hObject,'UserData',val); 
+set(handles.genval,'String',num2str(val));
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+
+% --- Executes during object creation, after setting all properties.
+function max_gen_slider_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to max_gen_slider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+set(hObject,'Max',50000,'Min',500,'Value',10000, 'SliderStep',[1/49500 , 1/49500 ]);
+val = get(hObject,'Value');   
+set(hObject,'UserData',val); 
+
+
+function genval_Callback(hObject, eventdata, handles)
+% hObject    handle to antsval (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+valstr = get(hObject,'String');  
+min = 500;
+max = 50000;
+if all(ismember(valstr, '0123456789+-.eEdD'))
+    val = str2num(valstr);
+    set(hObject,'UserData',floor(val));
+    if val <= min
+        set(handles.max_gen_slider,'Value',min, 'UserData', min);
+        set(hObject,'String', num2str(min) );
+    elseif val >= max
+        set(handles.max_gen_slider,'Value',max, 'UserData', max);
+        set(hObject,'String', num2str(max) );
+    else 
+        set(handles.max_gen_slider,'Value',floor(val), 'UserData', floor(val));
+        set(hObject,'String', num2str(floor(val)));
+    end
+else 
+    set(handles.errormessage,'String',strcat( valstr, ' is not a valid number of generations' ));
+    h = findobj('Tag','max_gen_slider');
+    val = h.UserData;
+	set(hObject,'String', num2str(val));
+end 
+
+% Hints: get(hObject,'String') returns contents of antsval as text
+%        str2double(get(hObject,'String')) returns contents of antsval as a double
+
+% hObject    handle to genval (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of genval as text
+%        str2double(get(hObject,'String')) returns contents of genval as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function genval_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to genval (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

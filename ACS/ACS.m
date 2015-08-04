@@ -1,4 +1,4 @@
-function [results, route, items] = ACS(evaporation_rate, numAnts, beta)
+function [results, route, items] = ACS(evaporation_rate, numAnts, beta, maxIters)
 
 %required items
 currentPurchaseArray = {'fish_fillet', 'astro_yogurt', 'boneless_pork_chop', 'shredded_cheese', 'juice', 'coffee', 'grape', 'post_cereal', 'pepsi', 'cheese_bar', 'pc_chicken_breast', 'entree', 'water', 'salsa', 'salad'};
@@ -30,7 +30,7 @@ numStores = length(storeNames);
 numProducts = length(currentPurchaseArray);
 %evaporation_rate = 0.1;
 
-maxIters = 10000;
+%maxIters = 10000;
 %beta = 1;
 currentIter = 0;
 %numAnts = 15;
